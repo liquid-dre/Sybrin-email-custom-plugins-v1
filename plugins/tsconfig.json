@@ -1,0 +1,117 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "baseUrl": "./",
+    "outDir": "./dist/out-tsc",
+    "sourceMap": true,
+    "declaration": false,
+    "module": "es2015",
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es5",
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "lib": [
+      "es2018",
+      "dom"
+    ],
+    "paths": {
+      "@angular/*": [
+        "./node_modules/@angular/*"
+      ],
+      "custom-imgmail-common": [
+        "dist/custom-imgmail-common"
+      ],
+      "custom-imgmail-common/*": [
+        "dist/custom-imgmail-common/*"
+      ],
+      "custom-imgmail-design": [
+        "dist/custom-imgmail-design"
+      ],
+      "custom-imgmail-design/*": [
+        "dist/custom-imgmail-design/*"
+      ],
+      "custom-imgmail-runtime": [
+        "dist/custom-imgmail-runtime"
+      ],
+      "custom-imgmail-runtime/*": [
+        "dist/custom-imgmail-runtime/*"
+      ],
+      "imgsol-custom-mailbox-common": [
+        "dist/imgsol-custom-mailbox-common"
+      ],
+      "imgsol-custom-mailbox-common/*": [
+        "dist/imgsol-custom-mailbox-common/*"
+      ],
+      "imgsol-custom-mailbox-design": [
+        "dist/imgsol-custom-mailbox-design"
+      ],
+      "imgsol-custom-mailbox-design/*": [
+        "dist/imgsol-custom-mailbox-design/*"
+      ],
+      "imgsol-custom-mailbox-runtime": [
+        "dist/imgsol-custom-mailbox-runtime"
+      ],
+      "imgsol-custom-mailbox-runtime/*": [
+        "dist/imgsol-custom-mailbox-runtime/*"
+      ],
+      "test-common": [
+        "dist/test-common"
+      ],
+      "test-common/*": [
+        "dist/test-common/*"
+      ],
+      "test-design": [
+        "dist/test-design"
+      ],
+      "test-design/*": [
+        "dist/test-design/*"
+      ],
+      "test-runtime": [
+        "dist/test-runtime"
+      ],
+      "test-runtime/*": [
+        "dist/test-runtime/*"
+      ],
+      "sample-common": [
+        "dist/sample-common"
+      ],
+      "sample-common/*": [
+        "dist/sample-common/*"
+      ],
+      "sample-design": [
+        "dist/sample-design"
+      ],
+      "sample-design/*": [
+        "dist/sample-design/*"
+      ],
+      "sample-runtime": [
+        "dist/sample-runtime"
+      ],
+      "sample-runtime/*": [
+        "dist/sample-runtime/*"
+      ],
+      "minimal-common": [
+        "dist/minimal-common"
+      ],
+      "minimal-common/*": [
+        "dist/minimal-common/*"
+      ],
+      "minimal-design": [
+        "dist/minimal-design"
+      ],
+      "minimal-design/*": [
+        "dist/minimal-design/*"
+      ],
+      "minimal-runtime": [
+        "dist/minimal-runtime"
+      ],
+      "minimal-runtime/*": [
+        "dist/minimal-runtime/*"
+      ]
+    }
+  }
+}

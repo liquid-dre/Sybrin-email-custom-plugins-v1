@@ -1,0 +1,28 @@
+{
+   "entities": [
+      {
+         "fields": [
+            {
+               "id": "8a08f179-66f1-4d64-bb94-3d0345973282",
+               "name": "Email",
+               "type": "text",
+               "minLength": 0,
+               "maxLength": 255,
+               "defaultValue": ""
+            },
+            {
+               "id": "2a7d3867-8d30-4787-8342-a66d608a7cd2",
+               "name": "Consent",
+               "type": "yesno"
+            }
+         ],
+         "id": "b7eb69bb-b2eb-4a1b-bd81-7c36f80b18ac",
+         "name": "RegisterExample",
+         "displayName": "RegisterExample"
+      }
+   ],
+   "links": [],
+   "id": "2c79080e-a88f-4b28-bc4b-bd266682d55f",
+   "shortCode": "OjxN3Hc",
+   "$schema": "c:\\Users\\Tinomu\\.vscode\\extensions\\sybrinsystems.sybrin-developer-tools-1.2.27\\assets\\schemas\\datamodel-schema.json"
+}

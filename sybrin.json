@@ -1,0 +1,33 @@
+{
+	"name": "mail",
+	"version": "0.17.58",
+	"id": "mail",
+	"scope": "@global",
+	"components": {
+		"plugins": [
+			{
+				"dependencies": [
+					"imgsol-custom-mailbox-common"
+				],
+				"bundled-dependencies": [],
+				"tags": ["Nitro"],
+				"id": "imgsol-custom-mailbox",
+				"name": "imgsol-custom-mailbox",
+				"version": "0.17.58",
+				"designLibraryName": "imgsol-custom-mailbox-design",
+				"runtimeLibraryName": "imgsol-custom-mailbox-runtime",
+				"commonLibraryID": "imgsol-custom-mailbox-common",
+				"dataModelID": "2c79080e-a88f-4b28-bc4b-bd266682d55f"
+			}
+		],
+		"shared-libraries": [
+			{
+				"dependencies": [],
+				"id": "imgsol-custom-mailbox-common",
+				"name": "imgsol-custom-mailbox-common",
+				"version": "0.17.58",
+				"description": ""
+			}
+		]
+	}
+}

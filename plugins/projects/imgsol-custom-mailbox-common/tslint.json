@@ -1,0 +1,17 @@
+{
+  "extends": "../../tslint.json",
+  "rules": {
+    "directive-selector": [
+      true,
+      "attribute",
+      "imgsol-custom-mailbox",
+      "camelCase"
+    ],
+    "component-selector": [
+      true,
+      "element",
+      "imgsol-custom-mailbox",
+      "kebab-case"
+    ]
+  }
+}

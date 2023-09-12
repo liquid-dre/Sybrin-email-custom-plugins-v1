@@ -1,0 +1,7 @@
+/node_modules
+/package-out
+/plugin-host
+/plugins/dist
+/plugins/builders
+/plugins/node_modules
+/.deps-out

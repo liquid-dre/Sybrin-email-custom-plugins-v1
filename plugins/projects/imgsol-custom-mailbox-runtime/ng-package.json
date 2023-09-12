@@ -1,0 +1,7 @@
+{
+  "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
+  "dest": "../../dist/imgsol-custom-mailbox-runtime",
+  "lib": {
+    "entryFile": "src/plugin-api.ts"
+  }
+}

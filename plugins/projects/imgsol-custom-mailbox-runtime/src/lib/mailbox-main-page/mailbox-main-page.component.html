@@ -1,0 +1,282 @@
+<head>
+
+</head>
+
+<body>
+
+
+  <div class="header"> <button id="expand-button" class="expand-button" (click)="toggleSidebar()">≡</button>
+    <div class="title">Sybrin Mail</div>
+    <!-- <button class="refresh-button" (click)="refreshEmails()">Refresh Emails</button> -->
+    <div class="search-bar"> <input type="text" placeholder="Search..." [(ngModel)]="searchQuery"
+        [ngModelOptions]="{standalone:true}">
+      <div class="search-icon" (click)="showEmailsByFolder(selectedFolder, $event)">&#128269;</div>
+    </div>
+    <div class="search-dropdown">
+      <div class="search-dropdown-toggle" (click)="toggleSearchDropdown()"> Search in
+        <i class="arrow-icon">&#9662;</i>
+      </div>
+      <ul class="search-dropdown-menu" [class.show]="isSearchDropdownOpen">
+        <li (click)="selectedFolder = 'Inbox'; showEmailsByFolder('Inbox', $event)">Inbox</li>
+        <li (click)="selectedFolder = 'Outbox'; showEmailsByFolder('Outbox', $event)">Outbox</li>
+        <li (click)="selectedFolder = 'Sent'; showEmailsByFolder('Sent', $event)">Sent</li>
+        <li (click)="selectedFolder = 'Failed'; showEmailsByFolder('Failed', $event)">Failed</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="con">
+    <div class="sidebar" [hidden]="!isSidebarExpanded">
+      <button class="compose-button" (click)="toggleComposeModal()">Compose</button>
+      <ul class="sidebar-list">
+        <li><a href="#" (click)="showEmailsByFolder('Inbox', $event)"
+            [class.active]="selectedFolder === 'Inbox'">Inbox</a></li>
+        <li><a href="#" (click)="showEmailsByFolder('Outbox', $event)"
+            [class.active]="selectedFolder === 'Outbox'">Outbox</a></li>
+        <li><a href="#" (click)="showEmailsByFolder('Sent', $event)" [class.active]="selectedFolder === 'Sent'">Sent</a>
+        </li>
+        <li><a href="#" (click)="showEmailsByFolder('Failed', $event)"
+            [class.active]="selectedFolder === 'Failed'">Failed</a></li>
+        <li><a (click)="openAddressBook('AddressBook')" [class.active]="selectedFolder === 'AddressBook'">Address
+            Book</a></li>
+      </ul>
+
+    </div>
+
+    <div class="emails">
+      <div *ngIf="(workItems$ | async) as workitems">
+        <div *ngFor=" let email of workitems.workitems" class="email-item" [class.selected]="testselectedEmail===email"
+          [class.read]="email.properties.FolderID === '99'"
+          [class.unread]="email.properties.FolderID !== '99' && email.properties.Folder==='Inbox'"
+          (click)="increaseClickCount(email); showEmailDetails(email)">
+          <div class="email-details">
+            <div class="recipients">{{email.properties.From}}</div>
+            <div class="subject">{{email.properties.Subject}}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="right-section">
+      <div *ngIf="!testSelectedEmailID" class="select-item-text"> Select an item to read</div>
+
+      <!-- Reply Modal -->
+      <div class="email-reply-modal" [class.show]="showReplyModal" (click)="bringReplyModalToFront()">
+        <button class="close-button" (click)="closeReplyModal()"> &times; </button>
+        <form>
+          <div class="buttons"> <button class="send-button">Send</button> </div>
+          <div class="email-meta">
+            <div class="to-container">
+              <label for="replyRecipient">To:</label>
+              <input type="text" id="replyRecipient" [(ngModel)]="replyRecipient"
+                [ngModelOptions]="{ standalone: true }" required>
+            </div>
+            <div class="cc-container">
+              <label for="cc">CC: </label>
+              <input type="text" id="cc" [(ngModel)]="cc" [ngModelOptions]="{standalone:true}">
+            </div>
+            <hr>
+            <div class="subject-container">
+              <label for="replySubject">Subject:</label>
+              <input type="text" id="replySubject" [(ngModel)]="replySubject" [ngModelOptions]="{ standalone: true }"
+                required>
+            </div>
+          </div>
+          <hr>
+          <textarea class="compose-email-message-body" [(ngModel)]="body" [ngModelOptions]="{standalone:true}"
+            required></textarea>
+          <br><br>
+          <div class="attachments" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+            <label for="attachmentInput">Attachments: </label>
+            <input type="file" id="attachmentInput" (change)="onAttachmentUpload($event)" multiple>
+            <div *ngIf="vworkItems && vworkItems.length>0">
+              <div draggable="true">
+                <button (click)="clickPreviewButton()" class="attachment-preview-button"> Preview Attachments
+                </button>
+              </div>
+              <div *ngFor="let attachment of vworkItems[0].Pages; let i = index">
+                <button (click)="removeAttachment(i)">Remove</button>
+                <span>{{attachment.LocationPath }}</span>
+                <br><br>
+              </div>
+            </div>
+            <br>
+          </div>
+          <button class="clear-button" *ngIf="attachments.length>0" (click)="clearAttachments()">Clear
+            All &times;</button>
+        </form>
+      </div>
+
+      <!-- Compose Modal -->
+      <div class="email-compose-modal" [class.grabbing]="isDragging" [class.show]="showComposeModal"
+        (click)="bringComposeModalToFront()">
+        <button class="close-button" (click)="closeComposeModal()"> &times; </button>
+        <form class="compose-form">
+
+          <div class="buttons"> <button class="send-button" (click)="sendEmail()">Send</button> </div>
+
+          <div class="email-meta">
+            <div class="to-container" (click)="onEmailInputClick($event)">
+              <label for="recipient">To: </label>
+              <input type="text" id="recipient" [(ngModel)]="recipient" [ngModelOptions]="{standalone:true}" required>
+            </div>
+            <hr>
+            <div class="cc-container">
+              <label for="cc">CC: </label>
+              <input type="text" id="cc" [(ngModel)]="cc" [ngModelOptions]="{standalone:true}">
+            </div>
+            <hr>
+            <div class="subject-container">
+              <label for="subject">Subject: </label>
+              <input type="text" id="subject" [(ngModel)]="subject" [ngModelOptions]="{standalone:true}" required>
+            </div>
+          </div>
+          <hr>
+          <textarea id="emailMessageBody" class="compose-email-message-body" [(ngModel)]="body"
+            [ngModelOptions]="{standalone:true}" required></textarea>
+          <br><br>
+          <div class="attachments" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+            <label for="attachmentInput">Attachments: </label>
+            <input type="file" id="attachmentInput" (change)="onAttachmentUpload($event)" multiple>
+            <div *ngIf="vworkItems && vworkItems.length>0">
+              <div draggable="true">
+                <button (click)="clickPreviewButton()" class="attachment-preview-button"> Preview Attachments
+                </button>
+              </div>
+              <div *ngFor="let attachment of vworkItems[0].Pages; let i = index">
+                <button (click)="removeAttachment(i)">Remove</button>
+                <span>{{attachment.LocationPath }}</span>
+                <br><br>
+              </div>
+            </div>
+            <br>
+          </div>
+          <button class="clear-button" *ngIf="attachments.length>0" (click)="clearAttachments()">Clear
+            All &times;</button>
+        </form>
+      </div>
+
+
+      <!-- Forward Modal -->
+      <div class="email-forward-modal" [class.show]="showForwardModal" (click)="bringForwardModalToFront()">
+        <button class="close-button" (click)="closeForwardModal()"> &times; </button>
+        <form>
+          <div class="buttons"> <button class="send-button" (click)="sendEmail()">Send</button> </div>
+          <div class="email-meta">
+            <div class="to-container">
+              <label for="replyRecipient">To:</label>
+              <input type="text" id="replyRecipient" [(ngModel)]="replyRecipient"
+                [ngModelOptions]="{ standalone: true }" required>
+            </div>
+            <hr>
+            <div class="cc-container">
+              <label for="cc">CC: </label>
+              <input type="text" id="cc" [(ngModel)]="cc" [ngModelOptions]="{standalone:true}">
+            </div>
+            <hr>
+            <div class="subject-container">
+              <label for="replySubject">Subject:</label>
+              <input type="text" id="replySubject" [(ngModel)]="replySubject" [ngModelOptions]="{ standalone: true }"
+                required>
+            </div>
+          </div>
+          <hr>
+          <textarea class="compose-email-message-body" [(ngModel)]="body" [ngModelOptions]="{standalone:true}"
+            required></textarea>
+          <br><br>
+          <div class="attachments" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+            <label for="attachmentInput">Attachments: </label>
+            <input type="file" id="attachmentInput" (change)="onAttachmentUpload($event)" multiple>
+            <div *ngIf="vworkItems && vworkItems.length>0">
+              <div draggable="true">
+                <button (click)="clickPreviewButton()" class="attachment-preview-button"> Preview Attachments
+                </button>
+              </div>
+              <div *ngFor="let attachment of vworkItems[0].Pages; let i = index">
+                <button (click)="removeAttachment(i)">Remove</button>
+                <span>{{attachment.LocationPath }}</span>
+                <br><br>
+              </div>
+            </div>
+            <br>
+          </div>
+          <button class="clear-button" *ngIf="attachments.length>0" (click)="clearAttachments()">Clear
+            All &times;</button>
+        </form>
+      </div>
+
+
+
+      <!-- Viewing Modal -->
+      <div class="email-details-modal" [class.show]="testSelectedEmailID" (click)="bringEmailDetailsToFront()">
+        <button class="close-button" (click)="closeEmailPreview()">
+          &times;
+        </button>
+        <div class="buttons">
+          <button class="reply-button" (click)="openReplyModal()">&#8592; Reply</button>
+          <button (click)="openForwardModal()" class="forward-button">Forward &#8594;</button>
+        </div>
+        <h2 class="subject">{{testselectedEmail.properties.Subject}}</h2>
+        <div class="email-meta">
+          <div class="recipients">From: {{testselectedEmail.properties.From}}</div>
+          <div class="cc">To: {{testselectedEmail.properties.To}}</div>
+          <div class="cc">CC: {{testselectedEmail.properties.CC}}</div>
+          <div class="date-favorite-options">
+            <div class="date">{{testselectedEmail.properties.ProcessDate}}</div>
+          </div>
+        </div>
+        <hr class="hr-text">
+        <button (click)="clickInboxPreviewButton()" class="attachment-preview-button">
+          Attachments
+        </button>
+        <hr class="hr-text">
+
+
+        <!-- Original Message Body (Plain Text) -->
+        <div class="email-message-body" [class.html-content]="!isHtml" *ngIf="!isHtml">
+          {{testselectedEmail.properties.MessageBody}}
+        </div>
+
+        <div class="email-message-body" [class.html-content]="isHtml" *ngIf="isHtml">
+          <div [innerHTML]="testselectedEmail.properties.MessageBody"></div>
+        </div>
+
+        <!-- Response Message Body (HTML)  -->
+        <div class="email-message-body" [class.html-content]="isHtml && this.isReply">
+          <div [innerHTML]="isHtml && this.isReply ? responseMessageBody: ''"></div>
+        </div>
+        <br><br>
+        <!-- Email Trail -->
+        <div class="email-message-body email-trail"
+          *ngIf="this.isReply && this.hasTrail>1 && testselectedEmail.properties.Sensitivity === 'Reply'"
+          [innerHTML]="this.isReply ? responseMessageBody: ''"></div>
+
+
+
+        <hr class="hr-text">
+      </div>
+
+
+    </div>
+
+  </div>
+
+
+  <br>
+
+
+  <div *ngIf="(addressBookVar$ | async) as workitems" style="position: absolute;" id="addressbook">
+    <div *ngIf="showAddressBook">
+      <imgsol-custom-mailbox-address-book [addressBook]="workitems.workitems"
+        (itemClickEmitter="onItemClick($event[0], $event[1])" )>
+      </imgsol-custom-mailbox-address-book>
+    </div>
+  </div>
+
+
+
+
+
+
+</body>
