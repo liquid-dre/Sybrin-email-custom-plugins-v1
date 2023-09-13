@@ -9,7 +9,7 @@
     <div class="title">Sybrin Mail</div>
     <!-- <button class="refresh-button" (click)="refreshEmails()">Refresh Emails</button> -->
     <div class="search-bar"> <input type="text" placeholder="Search..." [(ngModel)]="searchQuery"
-        [ngModelOptions]="{standalone:true}">
+        [ngModelOptions]="{standalone:true}" autocomplete="off">
       <div class="search-icon" (click)="showEmailsByFolder(selectedFolder, $event)">&#128269;</div>
     </div>
     <div class="search-dropdown">
@@ -67,20 +67,21 @@
         <form>
           <div class="buttons"> <button class="send-button">Send</button> </div>
           <div class="email-meta">
-            <div class="to-container">
+            <div class="to-container" (click)="toReply(); onEmailInputClick($event)">
               <label for="replyRecipient">To:</label>
               <input type="text" id="replyRecipient" [(ngModel)]="replyRecipient"
-                [ngModelOptions]="{ standalone: true }" required>
+                [ngModelOptions]="{ standalone: true }" required autocomplete="off">
             </div>
-            <div class="cc-container">
+            <div class="cc-container" (click)="ccCompose(); onEmailInputClick($event)">
               <label for="cc">CC: </label>
-              <input type="text" id="cc" [(ngModel)]="cc" [ngModelOptions]="{standalone:true}">
+              <input type="text" id="cc" [(ngModel)]="cc" [ngModelOptions]="{standalone:true}" required
+                autocomplete="off">
             </div>
             <hr>
             <div class="subject-container">
               <label for="replySubject">Subject:</label>
               <input type="text" id="replySubject" [(ngModel)]="replySubject" [ngModelOptions]="{ standalone: true }"
-                required>
+                required autocomplete="off">
             </div>
           </div>
           <hr>
@@ -117,24 +118,27 @@
           <div class="buttons"> <button class="send-button" (click)="sendEmail()">Send</button> </div>
 
           <div class="email-meta">
-            <div class="to-container" (click)="onEmailInputClick($event)">
+            <div class="to-container" (click)="toCompose(); onEmailInputClick($event)">
               <label for="recipient">To: </label>
-              <input type="text" id="recipient" [(ngModel)]="recipient" [ngModelOptions]="{standalone:true}" required>
+              <input type="text" id="recipient" [(ngModel)]="recipient" [ngModelOptions]="{standalone:true}" required
+                autocomplete="off">
             </div>
             <hr>
-            <div class="cc-container">
+            <div class="cc-container" (click)="ccCompose(); onEmailInputClick($event)">
               <label for="cc">CC: </label>
-              <input type="text" id="cc" [(ngModel)]="cc" [ngModelOptions]="{standalone:true}">
+              <input type="text" id="cc" [(ngModel)]="cc" [ngModelOptions]="{standalone:true}" required
+                autocomplete="off">
             </div>
             <hr>
             <div class="subject-container">
               <label for="subject">Subject: </label>
-              <input type="text" id="subject" [(ngModel)]="subject" [ngModelOptions]="{standalone:true}" required>
+              <input type="text" id="subject" [(ngModel)]="subject" [ngModelOptions]="{standalone:true}" required
+                autocomplete="off">
             </div>
           </div>
           <hr>
           <textarea id="emailMessageBody" class="compose-email-message-body" [(ngModel)]="body"
-            [ngModelOptions]="{standalone:true}" required></textarea>
+            [ngModelOptions]="{standalone:true}" required autocomplete="off"></textarea>
           <br><br>
           <div class="attachments" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
             <label for="attachmentInput">Attachments: </label>
@@ -164,26 +168,27 @@
         <form>
           <div class="buttons"> <button class="send-button" (click)="sendEmail()">Send</button> </div>
           <div class="email-meta">
-            <div class="to-container">
+            <div class="to-container" (click)="toReply(); onEmailInputClick($event)">
               <label for="replyRecipient">To:</label>
               <input type="text" id="replyRecipient" [(ngModel)]="replyRecipient"
-                [ngModelOptions]="{ standalone: true }" required>
+                [ngModelOptions]="{ standalone: true }" required autocomplete="off">
             </div>
             <hr>
-            <div class="cc-container">
+            <div class="cc-container" (click)="ccCompose(); onEmailInputClick($event)">
               <label for="cc">CC: </label>
-              <input type="text" id="cc" [(ngModel)]="cc" [ngModelOptions]="{standalone:true}">
+              <input type="text" id="cc" [(ngModel)]="cc" [ngModelOptions]="{standalone:true}" required
+                autocomplete="off">
             </div>
             <hr>
             <div class="subject-container">
               <label for="replySubject">Subject:</label>
               <input type="text" id="replySubject" [(ngModel)]="replySubject" [ngModelOptions]="{ standalone: true }"
-                required>
+                required autocomplete="off">
             </div>
           </div>
           <hr>
-          <textarea class="compose-email-message-body" [(ngModel)]="body" [ngModelOptions]="{standalone:true}"
-            required></textarea>
+          <textarea class="compose-email-message-body" [(ngModel)]="body" [ngModelOptions]="{standalone:true}" required
+            autocomplete="off"></textarea>
           <br><br>
           <div class="attachments" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
             <label for="attachmentInput">Attachments: </label>
@@ -266,10 +271,9 @@
   <br>
 
 
-  <div *ngIf="(addressBookVar$ | async) as workitems" style="position: absolute;" id="addressbook">
-    <div *ngIf="showAddressBook">
-      <imgsol-custom-mailbox-address-book [addressBook]="workitems.workitems"
-        (itemClickEmitter="onItemClick($event[0], $event[1])" )>
+  <div *ngIf="(addressBookVar$ | async) as workitems" id="addressbook">
+    <div *ngIf="showAddressBook" class="floating-model">
+      <imgsol-custom-mailbox-address-book [addressBook]="workitems" (itemClickEmitter)="onItemClick($event)">
       </imgsol-custom-mailbox-address-book>
     </div>
   </div>

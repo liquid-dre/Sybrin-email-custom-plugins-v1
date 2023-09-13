@@ -3,5 +3,7 @@
 </p>
 
 <div *ngFor="let emailAddress of addressBook.workitems">
-  <li (onclick)="onselect(emailAddress.properties.EmailAddress)">emailAddress.properties.EmailAddress</li>
+  <li> <a (click)="onselect(emailAddress.properties.EmailAddress)">
+    {{emailAddress.properties.EmailAddress}} </a></li>
+
 </div>

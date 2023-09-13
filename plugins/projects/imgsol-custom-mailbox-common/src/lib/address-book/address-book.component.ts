@@ -1,6 +1,6 @@
-import { Component, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { EntityDefinition, IDataVariable, Workitem } from '@sybrin/plugin-client';
-import { EventEmitter } from 'events';
+
 
 @Component({
   selector: 'imgsol-custom-mailbox-address-book',
@@ -13,7 +13,7 @@ export class AddressBookComponent implements OnInit {
     workitems: Workitem[]; entityDefinition: EntityDefinition
   };
 
-  @Output() itemClickEmitter: EventEmitter = new EventEmitter();
+  @Output() itemClickEmitter: EventEmitter<string>= new EventEmitter();
 
   public address = [];
 
@@ -24,7 +24,6 @@ export class AddressBookComponent implements OnInit {
 
   onselect(email?: string) {
     this.itemClickEmitter.emit(email);
-    
   }
 }
 

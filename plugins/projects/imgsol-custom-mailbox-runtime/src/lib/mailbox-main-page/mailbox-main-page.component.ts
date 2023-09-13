@@ -137,6 +137,9 @@ export class MailboxMainPageComponent implements OnInit {
   emailTrailMatchesSubject: boolean;
   hasTrail: number;
   showAddressBook: boolean = false;
+  composeTo: boolean = false;
+  composeCC: boolean = false;
+  replyTo: boolean = false;
 
 
   constructor(private bindingService: BindingService, private variableService: VariableService, private workItemPageService: WorkitemPageService,
@@ -818,28 +821,28 @@ export class MailboxMainPageComponent implements OnInit {
   }
 
   bringComposeModalToFront(): void {
-    const composeModal = document.querySelector('.email-compose-modal') as HTMLElement;
-    const previewModal = document.querySelector('.document-preview-modal') as HTMLElement;
-    if (composeModal && previewModal) {
-      composeModal.style.zIndex = '1';
-      previewModal.style.zIndex = '2';
-    } else {
-      composeModal.style.zIndex = '2';
-      previewModal.style.zIndex = '1';
-    }
+    // const composeModal = document.querySelector('.email-compose-modal') as HTMLElement;
+    // const previewModal = document.querySelector('.document-preview-modal') as HTMLElement;
+    // if (composeModal && previewModal) {
+    //   composeModal.style.zIndex = '1';
+    //   previewModal.style.zIndex = '2';
+    // } else {
+    //   composeModal.style.zIndex = '2';
+    //   previewModal.style.zIndex = '1';
+    // }
   }
 
   bringPreviewModalToFront(): void {
-    const composeModal = document.querySelector('.email-compose-modal') as HTMLElement;
-    const previewModal = document.querySelector('.document-preview-modal') as HTMLElement;
-    const replyModal = document.querySelector('.email-reply-modal') as HTMLElement;
-    const forwardModal = document.querySelector('.email-forward-modal') as HTMLElement;
-    const emailDetails = document.querySelector('.email-details-modal') as HTMLElement;
-    composeModal.style.zIndex = '2';
-    previewModal.style.zIndex = '3';
-    replyModal.style.zIndex = '2';
-    emailDetails.style.zIndex = '1'
-    forwardModal.style.zIndex = '2';
+    // const composeModal = document.querySelector('.email-compose-modal') as HTMLElement;
+    // const previewModal = document.querySelector('.document-preview-modal') as HTMLElement;
+    // const replyModal = document.querySelector('.email-reply-modal') as HTMLElement;
+    // const forwardModal = document.querySelector('.email-forward-modal') as HTMLElement;
+    // const emailDetails = document.querySelector('.email-details-modal') as HTMLElement;
+    // composeModal.style.zIndex = '2';
+    // previewModal.style.zIndex = '3';
+    // replyModal.style.zIndex = '2';
+    // emailDetails.style.zIndex = '1'
+    // forwardModal.style.zIndex = '2';
 
   }
 
@@ -857,21 +860,52 @@ export class MailboxMainPageComponent implements OnInit {
     console.log("Forwarded");
   }
 
-  onItemClick(event: MouseEvent) {
-    if (this.recipient === '' || this.recipient === null) {
-      // this.recipient = event
-    } else {
-      this.recipient += '; ' + event
-    }
-
+  toCompose() {
+    this.composeTo = true;
+    this.composeCC = this.replyTo = false;
+    console.log("To Compose: ", this.composeTo);
   }
 
-  onEmailInputClick(event:MouseEvent) {
+  ccCompose() {
+    this.composeCC = true;
+    this.composeTo = this.replyTo = false;
+    console.log("CC: ", this.composeCC);
+  }
+
+  toReply() {
+    this.replyTo = true;
+    this.composeCC = this.composeTo = false;
+    console.log("To Reply: ", this.toReply);
+  }
+
+  onItemClick(event: any) {
+    if (this.composeTo) {
+      if (this.recipient === '' || this.recipient === null) {
+        this.recipient = event
+      } else {
+        this.recipient += '; ' + event
+      }
+    } else if (this.composeCC) {
+      if (this.cc === '' || this.cc === null) {
+        this.cc = event
+      } else {
+        this.cc += '; ' + event
+      }
+    } else if (this.toReply) {
+      if (this.replyRecipient === '' || this.replyRecipient === null) {
+        this.replyRecipient = event
+      } else {
+        this.replyRecipient += '; ' + event
+      }
+    }
+  }
+
+  onEmailInputClick(event: MouseEvent) {
     this.showAddressBook = !this.showAddressBook;
     requestAnimationFrame(() => {
       const addressElement = document.getElementById['addressbook'];
-      addressElement.style.top= event.clientY +'px';
-      addressElement.style.left= event.clientX +'px';
+      addressElement.style.top = event.clientY + 'px';
+      addressElement.style.left = event.clientX + 'px';
       document.body.insertAdjacentElement('beforeend', addressElement);
     })
   }
