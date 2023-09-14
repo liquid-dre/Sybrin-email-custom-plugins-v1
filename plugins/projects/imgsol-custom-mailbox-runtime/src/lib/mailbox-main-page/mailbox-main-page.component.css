@@ -242,9 +242,52 @@ body {
   display: block;
 }
 
-.email-meta input[type="text"]{
+.email-meta input[type="text"] {
   width: 100%;
   box-sizing: border-box;
+}
+
+/* CSS for the floating model */
+.address-book {
+  position: absolute;
+  display: none;
+  background-color: #fff;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  padding: 10px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.address-book-visible {
+  display: block;
+  width: 40vh;
+  border-radius: 4px;
+  height: 40vh;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+}
+
+.address-book-hide{
+  display: none;
+}
+
+.floating-model {
+  position: absolute;
+  display: block;
+  background-color: #fff;
+  border-radius: 4px;
+  overflow-y: auto;
+  z-index: 1000;
+  width: 35vh;
+  height: 40vh;
+  overflow: auto;
+}
+
+.floating-model-visible {
+  display: block;
+  border-radius: 4px;
+  width: 40vh;
+  height: 40vh;
 }
 
 .compose-email-message-body {
@@ -395,6 +438,19 @@ body {
   color: #ff0000;
   cursor: pointer;
 }
+
+.closes-button {
+  position: absolute;
+  top: -15px;
+  right: 10px;
+  padding-bottom: 10px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  color: #ff0000;
+  cursor: pointer;
+}
+
 
 .email-meta {
   display: flex;

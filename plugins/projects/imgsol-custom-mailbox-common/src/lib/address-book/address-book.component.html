@@ -1,9 +1,8 @@
-<p>
-  address-book works!
-</p>
 
 <div *ngFor="let emailAddress of addressBook.workitems">
-  <li> <a (click)="onselect(emailAddress.properties.EmailAddress)">
-    {{emailAddress.properties.EmailAddress}} </a></li>
-
+  <ul class="address-items">
+    <li> <a (click)="onselect(emailAddress.properties.EmailAddress)">
+        {{emailAddress.properties.EmailAddress}} </a></li>
+        <hr>
+  </ul>
 </div>

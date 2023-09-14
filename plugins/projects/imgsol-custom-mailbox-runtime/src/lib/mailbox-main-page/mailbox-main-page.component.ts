@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Renderer2, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, OnInit, Renderer2, ChangeDetectorRef, HostListener } from '@angular/core';
 import { BindingService, EntityDefinition, IDataVariable, IPageBase64, ObjectState, PageRequest, PageSide, PluginEventExecutionRequest, PluginEventsService, VariableService, Workitem, WorkitemPageService } from '@sybrin/plugin-client';
 import { Observable } from 'rxjs';
 import { distinctUntilChanged, first, map, tap, filter, concatAll } from 'rxjs/operators';
@@ -140,6 +140,7 @@ export class MailboxMainPageComponent implements OnInit {
   composeTo: boolean = false;
   composeCC: boolean = false;
   replyTo: boolean = false;
+
 
 
   constructor(private bindingService: BindingService, private variableService: VariableService, private workItemPageService: WorkitemPageService,
@@ -861,56 +862,62 @@ export class MailboxMainPageComponent implements OnInit {
   }
 
   toCompose() {
-    this.composeTo = true;
-    this.composeCC = this.replyTo = false;
+    this.setComposeFlags(true, false, false);
     console.log("To Compose: ", this.composeTo);
   }
 
   ccCompose() {
-    this.composeCC = true;
-    this.composeTo = this.replyTo = false;
+    this.setComposeFlags(false, true, false);
     console.log("CC: ", this.composeCC);
   }
 
   toReply() {
-    this.replyTo = true;
-    this.composeCC = this.composeTo = false;
-    console.log("To Reply: ", this.toReply);
+    this.setComposeFlags(false, false, true);
+    console.log("To Reply: ", this.composeTo);
+  }
+
+  setComposeFlags(to, cc, reply) {
+    this.composeTo = to;
+    this.composeCC = cc;
+    this.replyTo = reply;
   }
 
   onItemClick(event: any) {
-    if (this.composeTo) {
-      if (this.recipient === '' || this.recipient === null) {
-        this.recipient = event
-      } else {
-        this.recipient += '; ' + event
-      }
-    } else if (this.composeCC) {
-      if (this.cc === '' || this.cc === null) {
-        this.cc = event
-      } else {
-        this.cc += '; ' + event
-      }
-    } else if (this.toReply) {
-      if (this.replyRecipient === '' || this.replyRecipient === null) {
-        this.replyRecipient = event
-      } else {
-        this.replyRecipient += '; ' + event
-      }
+    const recipientField = this.composeTo ? 'recipient' : (this.composeCC ? 'cc' : 'replyRecipient');
+    const currentValue = this[recipientField];
+
+    if (!currentValue) {
+      this[recipientField] = event;
+    } else {
+      this[recipientField] += '; ' + event;
     }
+
+    console.log(`Added '${event}' to ${recipientField}: `, this[recipientField]);
   }
 
   onEmailInputClick(event: MouseEvent) {
-    this.showAddressBook = !this.showAddressBook;
+    this.showAddressBook = true;
     requestAnimationFrame(() => {
-      const addressElement = document.getElementById['addressbook'];
-      addressElement.style.top = event.clientY + 'px';
+      const addressElement = document.getElementById('addressbook');
+      // const addressElement = document.getElementById['addressbook'];
+      console.log("Address Element: ", addressElement);
+      // if (addressElement) {
+      const rect = addressElement.getBoundingClientRect();
+      // addressElement.style.top = event.clientY + 'px';
+      addressElement.style.top = event.clientY - rect.height + 'px';
       addressElement.style.left = event.clientX + 'px';
-      document.body.insertAdjacentElement('beforeend', addressElement);
-    })
+      // addressElement.classList.add('floating-model-visible');
+      addressElement.classList.add('address-book-visible');
+      // document.body.insertAdjacentElement('beforeend', addressElement);
+      // }
+    });
   }
 
-
+  closeAddressBook() {
+   this.showAddressBook = false;
+  //  const addressElement = document.getElementById('addressbook');
+  //  addressElement.classList.add('address-book-hide');
+  }
 
   bringEmailDetailsToFront(): void {
     const replyModal = document.querySelector('.email-reply-modal') as HTMLElement;

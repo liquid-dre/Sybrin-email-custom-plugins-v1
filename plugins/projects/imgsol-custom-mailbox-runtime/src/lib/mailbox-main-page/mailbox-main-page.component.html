@@ -271,8 +271,13 @@
   <br>
 
 
-  <div *ngIf="(addressBookVar$ | async) as workitems" id="addressbook">
-    <div *ngIf="showAddressBook" class="floating-model">
+  <!-- <div *ngIf="(addressBookVar$ | async) as workitems" id="addressbook" class="address-book"> -->
+
+  <div *ngIf="showAddressBook" class="address-book" id="addressbook">
+    <div *ngIf="(addressBookVar$ | async) as workitems" class="floating-model">
+      <div>
+        <button class="closes-button" (click)="closeAddressBook()" id="close-button"> &times; </button>
+      </div>
       <imgsol-custom-mailbox-address-book [addressBook]="workitems" (itemClickEmitter)="onItemClick($event)">
       </imgsol-custom-mailbox-address-book>
     </div>

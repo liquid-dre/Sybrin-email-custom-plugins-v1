@@ -13,7 +13,7 @@ export class AddressBookComponent implements OnInit {
     workitems: Workitem[]; entityDefinition: EntityDefinition
   };
 
-  @Output() itemClickEmitter: EventEmitter<string>= new EventEmitter();
+  @Output() itemClickEmitter: EventEmitter<string> = new EventEmitter();
 
   public address = [];
 
@@ -25,6 +25,8 @@ export class AddressBookComponent implements OnInit {
   onselect(email?: string) {
     this.itemClickEmitter.emit(email);
   }
+
+
 }
 
 
