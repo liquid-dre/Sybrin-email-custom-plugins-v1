@@ -67,17 +67,18 @@
         <form>
           <div class="buttons"> <button class="send-button">Send</button> </div>
           <div class="email-meta">
-            <div class="to-container" (click)="toReply(); onEmailInputClick($event)">
+            <div class="to-container" (click)="toReply(); onEmailInputClick('replyToHr',$event)" data-hr="replyToHr">
               <label for="replyRecipient">To:</label>
               <input type="text" id="replyRecipient" [(ngModel)]="replyRecipient"
                 [ngModelOptions]="{ standalone: true }" required autocomplete="off">
             </div>
-            <div class="cc-container" (click)="ccCompose(); onEmailInputClick($event)">
+            <hr class="input-field-hr" id="replyToHr">
+            <div class="cc-container" (click)="ccCompose(); onEmailInputClick('replyCCHr',$event)" data-hr="replyCCHr">
               <label for="cc">CC: </label>
               <input type="text" id="cc" [(ngModel)]="cc" [ngModelOptions]="{standalone:true}" required
                 autocomplete="off">
             </div>
-            <hr>
+            <hr class="input-field-hr" id="replyCCHr">
             <div class="subject-container">
               <label for="replySubject">Subject:</label>
               <input type="text" id="replySubject" [(ngModel)]="replySubject" [ngModelOptions]="{ standalone: true }"
@@ -118,18 +119,18 @@
           <div class="buttons"> <button class="send-button" (click)="sendEmail()">Send</button> </div>
 
           <div class="email-meta">
-            <div class="to-container" (click)="toCompose(); onEmailInputClick($event)">
+            <div class="to-container" (click)="toCompose(); onEmailInputClick('composeToHr',$event)" data-hr="composeToHr">
               <label for="recipient">To: </label>
               <input type="text" id="recipient" [(ngModel)]="recipient" [ngModelOptions]="{standalone:true}" required
                 autocomplete="off">
             </div>
-            <hr>
-            <div class="cc-container" (click)="ccCompose(); onEmailInputClick($event)">
+            <hr class="input-field-hr" id="composeToHr">
+            <div class="cc-container" (click)="ccCompose(); onEmailInputClick('composeCCHr',$event)" data-hr="composeCCHr">
               <label for="cc">CC: </label>
               <input type="text" id="cc" [(ngModel)]="cc" [ngModelOptions]="{standalone:true}" required
                 autocomplete="off">
             </div>
-            <hr>
+            <hr class="input-field-hr" id="composeCCHr">
             <div class="subject-container">
               <label for="subject">Subject: </label>
               <input type="text" id="subject" [(ngModel)]="subject" [ngModelOptions]="{standalone:true}" required
@@ -168,18 +169,18 @@
         <form>
           <div class="buttons"> <button class="send-button" (click)="sendEmail()">Send</button> </div>
           <div class="email-meta">
-            <div class="to-container" (click)="toReply(); onEmailInputClick($event)">
+            <div class="to-container" (click)="toReply(); onEmailInputClick('forwardToHr',$event)" data-hr="forwardToHr">
               <label for="replyRecipient">To:</label>
               <input type="text" id="replyRecipient" [(ngModel)]="replyRecipient"
                 [ngModelOptions]="{ standalone: true }" required autocomplete="off">
             </div>
-            <hr>
-            <div class="cc-container" (click)="ccCompose(); onEmailInputClick($event)">
+            <hr class="input-field-hr" id="forwardToHr">
+            <div class="cc-container" (click)="ccCompose(); onEmailInputClick('forwardCCHr',$event)" data-hr="forwardCCHr">
               <label for="cc">CC: </label>
               <input type="text" id="cc" [(ngModel)]="cc" [ngModelOptions]="{standalone:true}" required
                 autocomplete="off">
             </div>
-            <hr>
+            <hr class="input-field-hr" id="forwardCCHr">
             <div class="subject-container">
               <label for="replySubject">Subject:</label>
               <input type="text" id="replySubject" [(ngModel)]="replySubject" [ngModelOptions]="{ standalone: true }"

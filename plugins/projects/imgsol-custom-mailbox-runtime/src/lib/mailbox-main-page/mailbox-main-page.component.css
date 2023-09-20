@@ -250,12 +250,14 @@ body {
 /* CSS for the floating model */
 .address-book {
   position: absolute;
-  display: none;
+  display: block;
   background-color: #fff;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
   border-radius: 4px;
   padding: 10px;
   overflow-y: auto;
+  width: 30vw;
+  height: 30vh;
   z-index: 1000;
 }
 
@@ -278,7 +280,7 @@ body {
   border-radius: 4px;
   overflow-y: auto;
   z-index: 1000;
-  width: 35vh;
+  width: 28vw;
   height: 40vh;
   overflow: auto;
 }

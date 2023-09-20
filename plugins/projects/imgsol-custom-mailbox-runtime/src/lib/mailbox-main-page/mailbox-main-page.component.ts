@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Renderer2, ChangeDetectorRef, HostListener } from '@angular/core';
+import { Component, Input, OnInit, Renderer2, ChangeDetectorRef, HostListener, ElementRef } from '@angular/core';
 import { BindingService, EntityDefinition, IDataVariable, IPageBase64, ObjectState, PageRequest, PageSide, PluginEventExecutionRequest, PluginEventsService, VariableService, Workitem, WorkitemPageService } from '@sybrin/plugin-client';
 import { Observable } from 'rxjs';
 import { distinctUntilChanged, first, map, tap, filter, concatAll } from 'rxjs/operators';
@@ -140,11 +140,12 @@ export class MailboxMainPageComponent implements OnInit {
   composeTo: boolean = false;
   composeCC: boolean = false;
   replyTo: boolean = false;
-
+  private mouseX = 0;
+  private mouseY = 0;
 
 
   constructor(private bindingService: BindingService, private variableService: VariableService, private workItemPageService: WorkitemPageService,
-    private sanitizer: DomSanitizer, private renderer: Renderer2, private pageService: PageService, private eventService: PluginEventsService, private cdr: ChangeDetectorRef) {
+    private sanitizer: DomSanitizer, private el: ElementRef, private renderer: Renderer2, private pageService: PageService, private eventService: PluginEventsService, private cdr: ChangeDetectorRef) {
 
   }
 
@@ -669,15 +670,16 @@ export class MailboxMainPageComponent implements OnInit {
         console.log('Reply? ', workItem.properties['Sensitivity']);
       }
 
-      workItem.properties['AccountID'] = 'ef98b7c1-8a4a-48ae-a366-ebcf8aaa6570';
+      workItem.properties['AccountID'] = '9e97becb-f5a6-4c16-9005-650d3232d70e';
+      // workItem.properties['AccountID'] = '9e97becb-f5a6-4c16-9005-650d3232d70e';
       workItem.properties['FolderID'] = '1';
-      workItem.properties['Folder'] = 'Outbox';
+      workItem.properties['Folder'] = 'OutBox';
       workItem.properties['EmailType'] = '0';
       workItem.properties['To'] = this.replyRecipient ? this.replyRecipient : this.recipient;
       workItem.properties['ReplyTo'] = 'NULL';
       workItem.properties['CC'] = this.cc || ' ';
       workItem.properties['Subject'] = this.replySubject ? this.replySubject : this.subject;
-      workItem.properties['From'] = 'avdingiswayo54@outlook.com';
+      workItem.properties['From'] = 'adingiswayo@imgsol.co.zw';
       workItem.properties['MessageBody'] = this.bodyHtmlElement ? this.bodyHtmlElement.innerHTML : this.body;
 
       // workItem.properties['MessageBody'] = this.body;
@@ -895,28 +897,31 @@ export class MailboxMainPageComponent implements OnInit {
     console.log(`Added '${event}' to ${recipientField}: `, this[recipientField]);
   }
 
-  onEmailInputClick(event: MouseEvent) {
+  onEmailInputClick(hrIdentifier: string, event: MouseEvent): void {
+    this.mouseX = event.clientX;
+    this.mouseY = event.clientY;
     this.showAddressBook = true;
+
     requestAnimationFrame(() => {
-      const addressElement = document.getElementById('addressbook');
-      // const addressElement = document.getElementById['addressbook'];
-      console.log("Address Element: ", addressElement);
-      // if (addressElement) {
-      const rect = addressElement.getBoundingClientRect();
-      // addressElement.style.top = event.clientY + 'px';
-      addressElement.style.top = event.clientY - rect.height + 'px';
-      addressElement.style.left = event.clientX + 'px';
-      // addressElement.classList.add('floating-model-visible');
-      addressElement.classList.add('address-book-visible');
-      // document.body.insertAdjacentElement('beforeend', addressElement);
-      // }
+      const addressBookModal = this.el.nativeElement.querySelector('.address-book');
+      const hrElement = this.el.nativeElement.querySelector(`#${hrIdentifier}`);
+
+      if (hrElement) {
+        const topPosition = hrElement.getBoundingClientRect().bottom + window.scrollY;
+        const leftPosition = this.mouseX;
+
+        // Set the position using CSS
+        this.renderer.setStyle(addressBookModal, 'top', `${topPosition}px`);
+        this.renderer.setStyle(addressBookModal, 'left', `${leftPosition}px`);
+      }
     });
   }
 
+
   closeAddressBook() {
-   this.showAddressBook = false;
-  //  const addressElement = document.getElementById('addressbook');
-  //  addressElement.classList.add('address-book-hide');
+    this.showAddressBook = false;
+    //  const addressElement = document.getElementById('addressbook');
+    //  addressElement.classList.add('address-book-hide');
   }
 
   bringEmailDetailsToFront(): void {

@@ -1,6 +1,6 @@
 {
 	"name": "mail",
-	"version": "0.18.0",
+	"version": "0.18.13",
 	"id": "mail",
 	"scope": "@global",
 	"components": {
@@ -13,7 +13,7 @@
 				"tags": ["Nitro"],
 				"id": "imgsol-custom-mailbox",
 				"name": "imgsol-custom-mailbox",
-				"version": "0.18.0",
+				"version": "0.18.13",
 				"designLibraryName": "imgsol-custom-mailbox-design",
 				"runtimeLibraryName": "imgsol-custom-mailbox-runtime",
 				"commonLibraryID": "imgsol-custom-mailbox-common",
@@ -25,7 +25,7 @@
 				"dependencies": [],
 				"id": "imgsol-custom-mailbox-common",
 				"name": "imgsol-custom-mailbox-common",
-				"version": "0.18.0",
+				"version": "0.18.13",
 				"description": ""
 			}
 		]

@@ -1,8 +1,14 @@
-
 <div *ngFor="let emailAddress of addressBook.workitems">
   <ul class="address-items">
-    <li> <a (click)="onselect(emailAddress.properties.EmailAddress)">
-        {{emailAddress.properties.EmailAddress}} </a></li>
-        <hr>
+    <li>
+      <a (click)="onselect(emailAddress.properties.EmailAddress)">
+        <span style="font-size: 16px;">
+          {{emailAddress.properties.FirstName + ' ' + emailAddress.properties.Surname}}
+        </span>
+      </a>
+      <br />
+      {{emailAddress.properties.EmailAddress}}
+    </li>
+    <hr>
   </ul>
 </div>
