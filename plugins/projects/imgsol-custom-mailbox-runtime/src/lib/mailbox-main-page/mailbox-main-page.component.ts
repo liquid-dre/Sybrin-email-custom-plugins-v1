@@ -9,6 +9,7 @@ import { QuillEditorComponent } from 'ngx-quill';
 import { resolve } from 'url';
 import { createElement } from '@angular/core/src/view/element';
 import { PageService } from '../services/get-page-data.service';
+import { APIServiceBase } from '@sybrin/extensions';
 // import { read } from 'fs';
 // import { error } from 'console';
 
@@ -19,6 +20,51 @@ interface Email {
   recipients: string; cc: string;
   date: string; isFavorite: boolean;
   id: string;
+}
+
+export declare class FileAttachment {
+  FileData: any[];
+  FileStoreDefinitionID: string;
+  FileName: string;
+  FileDescription: string;
+  FileLocation: string;
+}
+
+// export interface DistributionList {
+//   // Define the properties for DistributionList if not already provided in the C# class.
+// }
+
+// export interface ValueItems {
+//   // Define the properties for ValueItems if not already provided in the C# class.
+// }
+
+// export interface SybPredicateGroup {
+//   // Define the properties for SybPredicateGroup if not already provided in the C# class.
+// }
+
+// interface NotificationDestinationOverride {
+//   // Define the properties for NotificationDestinationOverride if not already provided in the C# class.
+// }
+
+export interface Notification {
+  DistributionListIDs?: string[];
+  EmailAccountIDs: string[];
+  SMSAccountIDs?: string[];
+  Attachments: FileAttachment[];
+  // DistributionList?: DistributionList | null;
+  NotificationTemplateID: string;
+  // ValueItems: ValueItems;
+  ValueObject: any; // Use a suitable TypeScript interface or type for ValueObject if possible.
+  // RecipientPredicateFilter: SybPredicateGroup | null;
+  // DestinationOverride: NotificationDestinationOverride | null;
+  RecipientIDs: string[];
+  EmailAddresses: string[];
+  CCEmailAddresses: string[];
+  BCCEmailAddresses: string[];
+  ReferenceID: string;
+  ContactNumbers: string[];
+  LinkID: string;
+  SendIndividual: boolean;
 }
 
 @Component({
@@ -145,7 +191,8 @@ export class MailboxMainPageComponent implements OnInit {
 
 
   constructor(private bindingService: BindingService, private variableService: VariableService, private workItemPageService: WorkitemPageService,
-    private sanitizer: DomSanitizer, private el: ElementRef, private renderer: Renderer2, private pageService: PageService, private eventService: PluginEventsService, private cdr: ChangeDetectorRef) {
+    private sanitizer: DomSanitizer, private el: ElementRef, private renderer: Renderer2, private api: APIServiceBase,
+    private pageService: PageService, private eventService: PluginEventsService, private cdr: ChangeDetectorRef) {
 
   }
 
@@ -670,10 +717,10 @@ export class MailboxMainPageComponent implements OnInit {
         console.log('Reply? ', workItem.properties['Sensitivity']);
       }
 
-      workItem.properties['AccountID'] = '9e97becb-f5a6-4c16-9005-650d3232d70e';
+      workItem.properties['AccountID'] = '487f7f98-84a9-4f0d-8ac5-c5a37c45c05f';
       // workItem.properties['AccountID'] = '9e97becb-f5a6-4c16-9005-650d3232d70e';
-      workItem.properties['FolderID'] = '1';
-      workItem.properties['Folder'] = 'OutBox';
+      workItem.properties['FolderID'] = '2';
+      workItem.properties['Folder'] = 'Sent';
       workItem.properties['EmailType'] = '0';
       workItem.properties['To'] = this.replyRecipient ? this.replyRecipient : this.recipient;
       workItem.properties['ReplyTo'] = 'NULL';
@@ -682,10 +729,46 @@ export class MailboxMainPageComponent implements OnInit {
       workItem.properties['From'] = 'adingiswayo@imgsol.co.zw';
       workItem.properties['MessageBody'] = this.bodyHtmlElement ? this.bodyHtmlElement.innerHTML : this.body;
 
-      // workItem.properties['MessageBody'] = this.body;
       workItem.properties['Importance'] = 'Normal';
-      // workItem.properties['Sensitivity'] = 'Normal';
       workItem.properties['Priority'] = 'Normal';
+      workItem.properties['NotificationTemplateID'] = '02de7fdf-68c5-436c-9367-86f2329553f5';
+
+
+
+      const notification: Notification = {
+        DistributionListIDs: [],
+        EmailAccountIDs: ["487f7f98-84a9-4f0d-8ac5-c5a37c45c05f"],
+        SMSAccountIDs: [],
+        Attachments: [],
+        // DistributionList: null,
+        NotificationTemplateID: workItem.properties['NotificationTemplateID'],
+        // ValueItems: null, // Assuming ValueItems is a class.
+        ValueObject: {
+          "subject": workItem.properties.Subject,
+            "body": "Dre",
+        }, // You may want to specify a proper initial value here.
+        // RecipientPredicateFilter: null,
+        // DestinationOverride: 1,
+        RecipientIDs: [],
+        EmailAddresses: workItem.properties.To,
+        CCEmailAddresses: workItem.properties.CC,
+        BCCEmailAddresses: [],
+        ReferenceID: "",
+        ContactNumbers: [],
+        LinkID: "",
+        SendIndividual: true,
+      };
+
+
+      console.log("notif", notification);
+
+
+      try {
+        const response = await this.api.post('Notification/SendNotification', notification);
+        console.log('API Response: ', response);
+      } catch (error) {
+        console.error('API Error: ', error);
+      }
 
       console.log("att...", this.attachments)
 
@@ -699,10 +782,6 @@ export class MailboxMainPageComponent implements OnInit {
 
       await this.variableService.updateVariableWorkitems(variableId, updates);
       await this.variableService.saveVariableData(variableId, this.properties.instanceInfo);
-
-      this.emailSent = true;
-      console.log("Email Sent: ", this.emailSent)
-      this.reset();
     }
     catch (error) {
       console.error('Error sending email: ', error);

@@ -11,6 +11,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FroalaEditorModule } from 'angular-froala-wysiwyg/editor/editor.module.js';
 import { FroalaViewModule } from 'angular-froala-wysiwyg/view/view.module.js';
 import { ImgsolCustomMailboxCommonModule } from 'imgsol-custom-mailbox-common';
+
 // import { JoditAngularModule } from 'jodit-angular/lib/jodit-angular.module';
 
 
