@@ -30,21 +30,6 @@ export declare class FileAttachment {
   FileLocation: string;
 }
 
-// export interface DistributionList {
-//   // Define the properties for DistributionList if not already provided in the C# class.
-// }
-
-// export interface ValueItems {
-//   // Define the properties for ValueItems if not already provided in the C# class.
-// }
-
-// export interface SybPredicateGroup {
-//   // Define the properties for SybPredicateGroup if not already provided in the C# class.
-// }
-
-// interface NotificationDestinationOverride {
-//   // Define the properties for NotificationDestinationOverride if not already provided in the C# class.
-// }
 
 export interface Notification {
   DistributionListIDs?: string[];
@@ -189,6 +174,9 @@ export class MailboxMainPageComponent implements OnInit {
   private mouseX = 0;
   private mouseY = 0;
 
+  openedAddressBook: boolean = false;
+trackClicksOutsideModal: boolean = false;  
+
 
   constructor(private bindingService: BindingService, private variableService: VariableService, private workItemPageService: WorkitemPageService,
     private sanitizer: DomSanitizer, private el: ElementRef, private renderer: Renderer2, private api: APIServiceBase,
@@ -196,8 +184,11 @@ export class MailboxMainPageComponent implements OnInit {
 
   }
 
+
   ngOnInit() {
 
+    console.log('Com[onent Initialised');
+    document.body.addEventListener('click', this.onDocumentClick.bind(this));
     // this.allEmails = this.testemails;
 
     this.addressBookVar$ = this.bindingService.get(this.properties.addressBookBindingConfig);
@@ -733,6 +724,16 @@ export class MailboxMainPageComponent implements OnInit {
       workItem.properties['Priority'] = 'Normal';
       workItem.properties['NotificationTemplateID'] = '02de7fdf-68c5-436c-9367-86f2329553f5';
 
+      console.log("att...", this.attachments)
+
+      const updates = [{
+        properties: { ...workItem.properties },
+        State: ObjectState.Created,
+        ID: workItem.ID
+      }];
+
+      console.log('Updates :', updates);
+
 
 
       const notification: Notification = {
@@ -745,13 +746,13 @@ export class MailboxMainPageComponent implements OnInit {
         // ValueItems: null, // Assuming ValueItems is a class.
         ValueObject: {
           "subject": workItem.properties.Subject,
-            "body": "Dre",
-        }, // You may want to specify a proper initial value here.
+          "body": workItem.properties.MessageBody,
+        },
         // RecipientPredicateFilter: null,
         // DestinationOverride: 1,
         RecipientIDs: [],
-        EmailAddresses: workItem.properties.To,
-        CCEmailAddresses: workItem.properties.CC,
+        EmailAddresses: [workItem.properties.To],
+        CCEmailAddresses: [workItem.properties.CC],
         BCCEmailAddresses: [],
         ReferenceID: "",
         ContactNumbers: [],
@@ -770,22 +771,17 @@ export class MailboxMainPageComponent implements OnInit {
         console.error('API Error: ', error);
       }
 
-      console.log("att...", this.attachments)
-
-      const updates = [{
-        properties: { ...workItem.properties },
-        State: ObjectState.Created,
-        ID: workItem.ID
-      }];
-
-      console.log('Updates :', updates);
-
       await this.variableService.updateVariableWorkitems(variableId, updates);
       await this.variableService.saveVariableData(variableId, this.properties.instanceInfo);
+
+
     }
     catch (error) {
       console.error('Error sending email: ', error);
     }
+
+    this.reset();
+
   }
 
 
@@ -974,12 +970,18 @@ export class MailboxMainPageComponent implements OnInit {
     }
 
     console.log(`Added '${event}' to ${recipientField}: `, this[recipientField]);
+
+    this.closeAddressBook();
+    this.trackClicksOutsideModal=true;
   }
 
   onEmailInputClick(hrIdentifier: string, event: MouseEvent): void {
     this.mouseX = event.clientX;
     this.mouseY = event.clientY;
     this.showAddressBook = true;
+
+    console.log('Opening modal');
+    
 
     requestAnimationFrame(() => {
       const addressBookModal = this.el.nativeElement.querySelector('.address-book');
@@ -996,11 +998,20 @@ export class MailboxMainPageComponent implements OnInit {
     });
   }
 
+  onDocumentClick(event: MouseEvent){
+    const addressBookModal = this.el.nativeElement.querySelector('.address-book');
+    
+        if(addressBookModal && this.trackClicksOutsideModal){
+          console.log('Clicked outside modal');
+          this.closeAddressBook()
+          this.trackClicksOutsideModal =false;
+        }
+  
+  }
 
   closeAddressBook() {
+    console.log('Closing modal');
     this.showAddressBook = false;
-    //  const addressElement = document.getElementById('addressbook');
-    //  addressElement.classList.add('address-book-hide');
   }
 
   bringEmailDetailsToFront(): void {
