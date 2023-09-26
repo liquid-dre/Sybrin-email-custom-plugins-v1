@@ -70,6 +70,10 @@ export class ImgsolCustomMailboxProperties extends PluginPropertyBase {
   @JsonProperty('addressBook', PluginEventConfig, true)
   addressBook: PluginEventConfig = new PluginEventConfig();
 
+  @PluginEvent({ label: 'Open More Options', subCategory: 'Events', category: PropertyCategory.Events })
+  @JsonProperty('moreOptions', PluginEventConfig, true)
+  moreOptions: PluginEventConfig = new PluginEventConfig();
+
   @DataBindingConfig({
     label: 'Destination Binding',
     subCategory: 'Destination'

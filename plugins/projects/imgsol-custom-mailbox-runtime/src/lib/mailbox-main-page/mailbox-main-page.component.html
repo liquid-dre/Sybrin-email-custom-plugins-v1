@@ -116,16 +116,20 @@
         <button class="close-button" (click)="closeComposeModal()"> &times; </button>
         <form class="compose-form">
 
-          <div class="buttons"> <button class="send-button" (click)="sendEmail()">Send</button> </div>
+          <div class="buttons">
+            <button class="send-button" (click)="sendEmail()">Send</button>
+          </div>
 
           <div class="email-meta">
-            <div class="to-container" (click)="toCompose(); onEmailInputClick('composeToHr',$event)" data-hr="composeToHr">
+            <div class="to-container" (click)="toCompose(); onEmailInputClick('composeToHr',$event)"
+              data-hr="composeToHr">
               <label for="recipient">To: </label>
               <input type="text" id="recipient" [(ngModel)]="recipient" [ngModelOptions]="{standalone:true}" required
                 autocomplete="off">
             </div>
             <hr class="input-field-hr" id="composeToHr">
-            <div class="cc-container" (click)="ccCompose(); onEmailInputClick('composeCCHr',$event)" data-hr="composeCCHr">
+            <div class="cc-container" (click)="ccCompose(); onEmailInputClick('composeCCHr',$event)"
+              data-hr="composeCCHr">
               <label for="cc">CC: </label>
               <input type="text" id="cc" [(ngModel)]="cc" [ngModelOptions]="{standalone:true}" required
                 autocomplete="off">
@@ -169,13 +173,15 @@
         <form>
           <div class="buttons"> <button class="send-button" (click)="sendEmail()">Send</button> </div>
           <div class="email-meta">
-            <div class="to-container" (click)="toReply(); onEmailInputClick('forwardToHr',$event)" data-hr="forwardToHr">
+            <div class="to-container" (click)="toReply(); onEmailInputClick('forwardToHr',$event)"
+              data-hr="forwardToHr">
               <label for="replyRecipient">To:</label>
               <input type="text" id="replyRecipient" [(ngModel)]="replyRecipient"
                 [ngModelOptions]="{ standalone: true }" required autocomplete="off">
             </div>
             <hr class="input-field-hr" id="forwardToHr">
-            <div class="cc-container" (click)="ccCompose(); onEmailInputClick('forwardCCHr',$event)" data-hr="forwardCCHr">
+            <div class="cc-container" (click)="ccCompose(); onEmailInputClick('forwardCCHr',$event)"
+              data-hr="forwardCCHr">
               <label for="cc">CC: </label>
               <input type="text" id="cc" [(ngModel)]="cc" [ngModelOptions]="{standalone:true}" required
                 autocomplete="off">
@@ -222,6 +228,9 @@
         <div class="buttons">
           <button class="reply-button" (click)="openReplyModal()">&#8592; Reply</button>
           <button (click)="openForwardModal()" class="forward-button">Forward &#8594;</button>
+          <button class="more-options-button" id="more-options-button" [class.clicked]="isMoreOptionsClicked"
+            (click)="clickMoreOptions()"> More Options :
+            </button>
         </div>
         <h2 class="subject">{{testselectedEmail.properties.Subject}}</h2>
         <div class="email-meta">

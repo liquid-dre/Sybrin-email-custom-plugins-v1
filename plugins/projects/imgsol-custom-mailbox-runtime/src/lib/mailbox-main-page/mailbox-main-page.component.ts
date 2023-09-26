@@ -175,7 +175,8 @@ export class MailboxMainPageComponent implements OnInit {
   private mouseY = 0;
 
   openedAddressBook: boolean = false;
-trackClicksOutsideModal: boolean = false;  
+  trackClicksOutsideModal: boolean = false;
+  isMoreOptionsClicked : boolean = false;
 
 
   constructor(private bindingService: BindingService, private variableService: VariableService, private workItemPageService: WorkitemPageService,
@@ -405,6 +406,14 @@ trackClicksOutsideModal: boolean = false;
     ));
   }
 
+  clickMoreOptions() {
+    this.isMoreOptionsClicked = !this.isMoreOptionsClicked;
+    this.eventService.executePluginEventRequest(new PluginEventExecutionRequest({
+      ...this.properties.moreOptions,
+      pluginID: this.properties.id
+    }
+    ));
+  }
 
   showEmailsByFolder(folder: string, event: Event) {
     event.preventDefault();
@@ -715,7 +724,7 @@ trackClicksOutsideModal: boolean = false;
       workItem.properties['EmailType'] = '0';
       workItem.properties['To'] = this.replyRecipient ? this.replyRecipient : this.recipient;
       workItem.properties['ReplyTo'] = 'NULL';
-      workItem.properties['CC'] = this.cc || ' ';
+      workItem.properties['CC'] = this.cc || "";
       workItem.properties['Subject'] = this.replySubject ? this.replySubject : this.subject;
       workItem.properties['From'] = 'adingiswayo@imgsol.co.zw';
       workItem.properties['MessageBody'] = this.bodyHtmlElement ? this.bodyHtmlElement.innerHTML : this.body;
@@ -773,7 +782,6 @@ trackClicksOutsideModal: boolean = false;
 
       await this.variableService.updateVariableWorkitems(variableId, updates);
       await this.variableService.saveVariableData(variableId, this.properties.instanceInfo);
-
 
     }
     catch (error) {
@@ -972,7 +980,7 @@ trackClicksOutsideModal: boolean = false;
     console.log(`Added '${event}' to ${recipientField}: `, this[recipientField]);
 
     this.closeAddressBook();
-    this.trackClicksOutsideModal=true;
+    this.trackClicksOutsideModal = true;
   }
 
   onEmailInputClick(hrIdentifier: string, event: MouseEvent): void {
@@ -981,7 +989,7 @@ trackClicksOutsideModal: boolean = false;
     this.showAddressBook = true;
 
     console.log('Opening modal');
-    
+
 
     requestAnimationFrame(() => {
       const addressBookModal = this.el.nativeElement.querySelector('.address-book');
@@ -998,15 +1006,15 @@ trackClicksOutsideModal: boolean = false;
     });
   }
 
-  onDocumentClick(event: MouseEvent){
+  onDocumentClick(event: MouseEvent) {
     const addressBookModal = this.el.nativeElement.querySelector('.address-book');
-    
-        if(addressBookModal && this.trackClicksOutsideModal){
-          console.log('Clicked outside modal');
-          this.closeAddressBook()
-          this.trackClicksOutsideModal =false;
-        }
-  
+
+    if (addressBookModal && this.trackClicksOutsideModal) {
+      console.log('Clicked outside modal');
+      this.closeAddressBook()
+      this.trackClicksOutsideModal = false;
+    }
+
   }
 
   closeAddressBook() {

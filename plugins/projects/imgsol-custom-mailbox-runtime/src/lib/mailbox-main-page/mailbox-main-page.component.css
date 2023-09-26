@@ -269,6 +269,21 @@ body {
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
 }
 
+/* Add this to your CSS stylesheet */
+.more-options-button {
+  background-color: #2727da; /* Set the initial background color */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.2s; /* Add a smooth transition effect */
+}
+
+/* Add a darker background color when button is active (clicked) */
+.more-options-button:active {
+  background-color: #0000b1; /* Darker color when clicked */
+}
+
 .address-book-hide{
   display: none;
 }
