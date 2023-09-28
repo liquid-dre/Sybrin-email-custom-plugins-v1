@@ -176,7 +176,8 @@ export class MailboxMainPageComponent implements OnInit {
 
   openedAddressBook: boolean = false;
   trackClicksOutsideModal: boolean = false;
-  isMoreOptionsClicked : boolean = false;
+  isMoreOptionsClicked: boolean = false;
+  referenceNumber: string;
 
 
   constructor(private bindingService: BindingService, private variableService: VariableService, private workItemPageService: WorkitemPageService,
@@ -273,15 +274,13 @@ export class MailboxMainPageComponent implements OnInit {
     }
   }
 
-
-
   async showEmailDetails(workItem: Workitem) {
     this.isReply = false;
     this.hasTrail = 0;
     let variableID = this.properties.dataBindingConfig.variableId;
-
+  
     await this.variableService.setVariableCurrentItem(variableID, workItem.ID);
-
+  
     this.testSelectedEmailID = workItem.ID;
     this.emailTrail = this.getEmailTrail(workItem);
     this.testselectedEmail = workItem;
@@ -289,67 +288,106 @@ export class MailboxMainPageComponent implements OnInit {
     const htmlElement = this.createHtmlElement(body);
     const tempcontainer = document.createElement("div");
     tempcontainer.innerHTML = body;
-
+  
     const isHtml = /^<html|<!doctype/i.test(body);
     console.log("IsHtml: ", isHtml);
-
+  
     this.messageContent = body;
-    this.isHtml = isHtml || /^<div|<meta/i.test(body);
-
+    this.isHtml = /^<html|<!doctype|<div|<meta|<style/i.test(body);
+  
     console.log('Test Selected Email: ', this.testselectedEmail);
-
-    const currentSubject = workItem.properties.Subject.includes(": ") ? workItem.properties.Subject.split(": ")[1] : workItem.properties.Subject;
-    console.log('Current Subject: ', currentSubject);
+  
+    // Extract the reference number from the subject
+    const reference = this.extractReferenceFromSubject(workItem.properties.Subject);
+  
+    // Fetch the latest emails
     const allWorkItems = await this.allWorkItems$.pipe(first()).toPromise();
     console.log("All Items: ", allWorkItems);
-
+  
     // Check if the email is in the inbox
     const isInInbox = workItem.properties.Folder === "Inbox";
-
-    // Handle inbox emails differently
+  
+    // Handle inbox emails and replies differently
     if (isInInbox) {
-      // Handle inbox email logic here, e.g., marking it as the starting point of a thread
-      this.emailTrail = [workItem];
-      this.hasTrail = 1;
+      this.handleInboxEmail(workItem);
     } else {
-      // Handle replies similar to the existing logic
-      const filteredEmails = this.getEmailsBySubject(allWorkItems.workitems, currentSubject);
-      this.hasTrail = filteredEmails.length;
-      console.log('Filtered Emails By Subject: ', filteredEmails);
+      this.handleReplyEmail(workItem, allWorkItems, reference);
+    }
+  } 
+  
+  handleInboxEmail(workItem: Workitem) {
+    // Handle inbox email logic here, e.g., marking it as the starting point of a thread
+    this.emailTrail = [workItem];
+    this.hasTrail = 0;
+  }
 
-      if (workItem.properties['Sensitivity'] === 'Reply') {
-        this.isReply = true;
-        const currentIndex = filteredEmails.findIndex((item) => item.properties.MessageBody === workItem.properties.MessageBody);
-        this.responseMessageBody = this.generateEmailTrailHTML(filteredEmails, currentIndex);
-        console.log("Response Message Body: ", this.responseMessageBody);
-      }
+  handleReplyEmail(workItem: Workitem, allWorkItems: any, reference: string) {
+    // Filter emails by reference, exclude the current email, and only include emails with lower IndNo
+    const filteredEmails = this.getEmailsByReference(allWorkItems.workitems, reference)
+      .filter(email => email.ID !== workItem.ID && email.properties.IndNo < workItem.properties.IndNo);
+      console.log('The filtered emails: ', filteredEmails);
+  
+    // If there are no other emails with the same reference and lower IndNo, don't show the email trail
+    if (filteredEmails.length === 0) {
+      this.hasTrail = 0;
+      return;
+    }
+  
+    // Sort the emails in descending order by IndNo
+    let sortedList = filteredEmails.sort((a, b) => b.properties.IndNo - a.properties.IndNo);
+    console.log("Sorted List: ", sortedList);
+  
+    this.hasTrail = filteredEmails.length;
+    console.log("trail length: ", this.hasTrail);
+
+    console.log('Filtered Emails By Reference: ', filteredEmails);
+  
+    if (workItem.properties['Sensitivity'] === 'Reply') {
+      this.isReply = true;
+      const currentIndex = filteredEmails.findIndex((item) => item.properties.MessageBody === workItem.properties.MessageBody);
+      console.log('current Index: ', currentIndex);
+
+      this.responseMessageBody = this.generateEmailTrailHTML(filteredEmails);
+      console.log("Response Message Body: ", this.responseMessageBody);
     }
   }
 
+  // Helper function to get emails with the same reference number in the subject
+  getEmailsByReference(workitems: Workitem[], reference: string): Workitem[] {
+    const emailsByReference = workitems.filter((value) => {
+      const subject = value.properties.Subject;
+      return subject.includes(reference);
+    });
+    console.log("Emails by Reference: ", emailsByReference)
+    return emailsByReference;
+  }
 
-  // Helper function to get emails with the same subject
-  getEmailsBySubject(workitems: Workitem[], currentSubject: string): Workitem[] {
+  // Helper function to extract the reference number from the subject
+  extractReferenceFromSubject(subject: string): string {
+    // Assuming the reference number is always the last part of the subject after ': '
+    const parts = subject.split(': ');
+    this.referenceNumber = parts[parts.length - 1];
+    return this.referenceNumber;
+  }
 
-    const emailsBySubject = workitems.filter((value) => {
-      const subject = value.properties.Subject.includes(": ")
-        ? value.properties.Subject.split(": ")[1].trim() // Trim white spaces
-        : value.properties.Subject.trim(); // Trim white spaces
-      currentSubject = currentSubject.trim();
-      console.log('Subject: ', subject, " Current Subject: ", currentSubject, "State: ", subject === currentSubject);
-      return subject === currentSubject;
-    })
-    // .sort((a, b) => b.properties.IndNo - a.properties.IndNo);
-    console.log("Emails by Subject: ", emailsBySubject)
-    return emailsBySubject
+
+  emailOpenStates: { [index: number]: boolean } = {};
+
+  toggleEmail(index: number) {
+    this.emailOpenStates[index] = !this.emailOpenStates[index];
+  }
+
+  isEmailOpen(index: number): boolean {
+    return this.emailOpenStates[index] || false;
   }
 
   // Helper function to generate email trail HTML
-  generateEmailTrailHTML(filteredEmails: Workitem[], currentIndex: number): string {
+  generateEmailTrailHTML(filteredEmails: Workitem[]): string {
     if (filteredEmails.length === 0) {
       return ''; // Return an empty string if there are no matching emails
     }
 
-    return filteredEmails.slice(currentIndex + 1).map((item) => `
+    let generatedTrail = filteredEmails.map((item) => `
       <br>
       <p><strong>From: </strong>${item.properties.From}</p>
       <p><strong>Subject: </strong>${item.properties.Subject}</p>
@@ -357,6 +395,10 @@ export class MailboxMainPageComponent implements OnInit {
       <p><strong>Body: </strong><br>${item.properties.MessageBody}</p>
       <hr style="border: 0;  height: 1px; background-image: linear-gradient(to right, #ff0101, #ffe600, #00e1ff, #d505ff);">
     `).join('');
+
+    console.log('Generated trail: ', generatedTrail);
+
+    return generatedTrail;
   }
 
 
@@ -780,8 +822,8 @@ export class MailboxMainPageComponent implements OnInit {
         console.error('API Error: ', error);
       }
 
-      await this.variableService.updateVariableWorkitems(variableId, updates);
-      await this.variableService.saveVariableData(variableId, this.properties.instanceInfo);
+      // await this.variableService.updateVariableWorkitems(variableId, updates);
+      // await this.variableService.saveVariableData(variableId, this.properties.instanceInfo);
 
     }
     catch (error) {
@@ -839,34 +881,6 @@ export class MailboxMainPageComponent implements OnInit {
     })
   }
 
-
-  private generateOfficeWebViewerURL(fileURL: string): string {
-    return `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(fileURL)}`;
-  }
-
-  private async uploadFileToServer(file: File): Promise<string> {
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch('http://localhost:3000/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to upload file.');
-      }
-
-      const data = await response.json();
-      const fileURL: string = data.fileURL;
-      console.log('File uploaded successfully. File URL:', fileURL);
-      return fileURL;
-    } catch (error) {
-      console.error('Error uploading file:', error.message);
-      throw error;
-    }
-  }
 
   private readTextFile(file: File) {
     const reader = new FileReader();
@@ -1153,22 +1167,6 @@ export class MailboxMainPageComponent implements OnInit {
     });
   }
 
-  // getEmailTrail(workItem: Workitem): Workitem[] {
-  //   const trail: Workitem[] = [];
-  //   let currentWorkItem = workItem;
-  //   while (currentWorkItem.ID) {
-  //     trail.unshift(currentWorkItem);
-  //     const parentWorkItem = this.getEmailById(currentWorkItem.ID);
-  //     if (parentWorkItem && parentWorkItem.ID !== currentWorkItem.ID) {
-  //       currentWorkItem = parentWorkItem;
-  //     } else {
-  //       break
-  //     }
-  //   }
-  //   return trail;
-  // }
-
-
   getEmailById(workItemID: string): Workitem | null {
     let foundWorkItem: Workitem | null = null;
     this.workItems$.subscribe(({ workitems }) => {
@@ -1181,19 +1179,6 @@ export class MailboxMainPageComponent implements OnInit {
     this.uploadedFiles = [];
     this.attachmentPage = this.showComposeModal = false;
     this.showReplySection = !this.showReplySection;;
-  }
-
-
-  // Handle File aSelection
-  handleFileSelection(event: Event) {
-    const fileInput = event.target as HTMLInputElement;
-    if (fileInput.files && fileInput.files.length > 0) {
-      this.attachment = fileInput.files[0];
-      console.log('Selected File: ', this.attachment);
-    }
-    else {
-      this.attachment = null;
-    }
   }
 
   reset() {
@@ -1221,12 +1206,8 @@ export class MailboxMainPageComponent implements OnInit {
 
   }
 
-
-
   getData() {
-
     const variableId = this.properties.dataBindingConfig.variableId;
-
     this.addressBookID$ = this.bindingService.get(this.properties.dataBindingConfig)
       .pipe(
         tap(response => {
@@ -1234,76 +1215,12 @@ export class MailboxMainPageComponent implements OnInit {
         }))
   }
 
-  async uploadAttachment(attachment: File): Promise<string> {
-    throw new Error('Method not implemented.');
-  }
 
   selectEmail(selectedEmail: Workitem): void {
     this.selectedEmail = selectedEmail;
     this.showComposeModal = this.showReplySection = false;
   }
 
-  handleDrop(event: DragEvent): void {
-    event.preventDefault();
-    this.dragLeave();
-    if (event.dataTransfer) {
-      this.handleFiles(event.dataTransfer.files)
-    }
-  }
 
-  handleDragOver(event: DragEvent): void {
-    event.preventDefault();
-    this.dragEnter();
-  }
-
-  handleDragLeave(event: DragEvent): void {
-    event.preventDefault();
-    this.dragLeave();
-  }
-
-  handleFileInput(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    this.handleFiles(target.files);
-  }
-
-  openFile(file: any): string {
-    const blob = new Blob([file], { type: 'application/octet-stream' });
-    const url = URL.createObjectURL(blob);
-
-    console.log("openFile");
-    return url
-  }
-
-  handleFiles(files: FileList | null): void {
-    if (!files) return;
-    for (let i = 0; i < files.length; i++) {
-      this.uploadedFiles.push(files[i]);
-      const fileURL = URL.createObjectURL(files[i]);
-      this.fileURLs.push(fileURL);
-      console.log("Files....", this.uploadedFiles)
-    }
-  }
-
-  formatBytes(bytes: number): string {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  }
-
-  private dragEnter(): void {
-    const dragDropArea = document.getElementById('dragDropArea');
-    if (dragDropArea) {
-      dragDropArea.classList.add('dragover');
-    }
-  }
-
-  private dragLeave(): void {
-    const dragDropArea = document.getElementById('dragDropArea');
-    if (dragDropArea) {
-      dragDropArea.classList.remove('dragover');
-    }
-  }
 
 }

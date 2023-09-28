@@ -65,7 +65,7 @@
       <div class="email-reply-modal" [class.show]="showReplyModal" (click)="bringReplyModalToFront()">
         <button class="close-button" (click)="closeReplyModal()"> &times; </button>
         <form>
-          <div class="buttons"> <button class="send-button">Send</button> </div>
+          <div class="buttons"> <button class="send-button" (click)="sendEmail()">Send</button> </div>
           <div class="email-meta">
             <div class="to-container" (click)="toReply(); onEmailInputClick('replyToHr',$event)" data-hr="replyToHr">
               <label for="replyRecipient">To:</label>
@@ -230,7 +230,7 @@
           <button (click)="openForwardModal()" class="forward-button">Forward &#8594;</button>
           <button class="more-options-button" id="more-options-button" [class.clicked]="isMoreOptionsClicked"
             (click)="clickMoreOptions()"> More Options :
-            </button>
+          </button>
         </div>
         <h2 class="subject">{{testselectedEmail.properties.Subject}}</h2>
         <div class="email-meta">
@@ -238,7 +238,7 @@
           <div class="cc">To: {{testselectedEmail.properties.To}}</div>
           <div class="cc">CC: {{testselectedEmail.properties.CC}}</div>
           <div class="date-favorite-options">
-            <div class="date">{{testselectedEmail.properties.ProcessDate}}</div>
+            <div class="date">{{testselectedEmail.properties.ProcessDate | date:'dd-MM-yyyy HH:mm'}}</div>
           </div>
         </div>
         <hr class="hr-text">
@@ -262,10 +262,17 @@
           <div [innerHTML]="isHtml && this.isReply ? responseMessageBody: ''"></div>
         </div>
         <br><br>
+
         <!-- Email Trail -->
-        <div class="email-message-body email-trail"
-          *ngIf="this.isReply && this.hasTrail>1 && testselectedEmail.properties.Sensitivity === 'Reply'"
-          [innerHTML]="this.isReply ? responseMessageBody: ''"></div>
+        <div class="email-trail" *ngIf="hasTrail !== 0">
+          <div *ngFor="let email of emailTrail; let i = index" class="email-trail-item">
+            <div class="email-trail-header" (click)="toggleEmail(i)">
+              <h2>Reference Number : {{referenceNumber}}</h2>
+              <p><strong>From:</strong> {{ email.properties.From }}</p>
+            </div>
+            <div *ngIf="isEmailOpen(i)" [innerHTML]="responseMessageBody" class="email-trail-body"></div>
+          </div>
+        </div>
 
 
 
