@@ -221,7 +221,7 @@
 
 
       <!-- Viewing Modal -->
-      <div class="email-details-modal" [class.show]="testSelectedEmailID" (click)="bringEmailDetailsToFront()">
+      <div class="email-details-modal" *ngIf="testselectedEmail" [class.show]="testSelectedEmailID" (click)="bringEmailDetailsToFront()">
         <button class="close-button" (click)="closeEmailPreview()">
           &times;
         </button>
@@ -246,7 +246,6 @@
           Attachments
         </button>
         <hr class="hr-text">
-
 
         <!-- Original Message Body (Plain Text) -->
         <div class="email-message-body" [class.html-content]="!isHtml" *ngIf="!isHtml">

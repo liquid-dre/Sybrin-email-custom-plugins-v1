@@ -218,17 +218,6 @@ export class MailboxMainPageComponent implements OnInit {
     return this.documentUrl.endsWith('.pdf');
   }
 
-  toggleFavorite() {
-    if (this.testselectedEmail) {
-      this.testselectedEmail.isFavorite = !this.testselectedEmail.isFavorite;
-      if (this.testselectedEmail.isFavorite) {
-        this.testselectedEmail.folder = 'Important';
-      } else {
-        this.testselectedEmail.folder = 'Inbox';
-      }
-    }
-  }
-
   toggleSidebar() {
     this.isSidebarExpanded = !this.isSidebarExpanded;
   }
@@ -278,43 +267,43 @@ export class MailboxMainPageComponent implements OnInit {
     this.isReply = false;
     this.hasTrail = 0;
     let variableID = this.properties.dataBindingConfig.variableId;
-  
+
     await this.variableService.setVariableCurrentItem(variableID, workItem.ID);
-  
+
     this.testSelectedEmailID = workItem.ID;
     this.emailTrail = this.getEmailTrail(workItem);
     this.testselectedEmail = workItem;
-    const body = this.testselectedEmail.properties.MessageBody;
+    const body = this.testselectedEmail ? this.testselectedEmail.properties.MessageBody : '';
     const htmlElement = this.createHtmlElement(body);
     const tempcontainer = document.createElement("div");
     tempcontainer.innerHTML = body;
-  
+
     const isHtml = /^<html|<!doctype/i.test(body);
     console.log("IsHtml: ", isHtml);
-  
+
     this.messageContent = body;
-    this.isHtml = /^<html|<!doctype|<div|<meta|<style/i.test(body);
-  
+    this.isHtml = /^<html|<!doctype|<div|<meta|<p|<style/i.test(body);
+
     console.log('Test Selected Email: ', this.testselectedEmail);
-  
+
     // Extract the reference number from the subject
     const reference = this.extractReferenceFromSubject(workItem.properties.Subject);
-  
+
     // Fetch the latest emails
     const allWorkItems = await this.allWorkItems$.pipe(first()).toPromise();
     console.log("All Items: ", allWorkItems);
-  
+
     // Check if the email is in the inbox
     const isInInbox = workItem.properties.Folder === "Inbox";
-  
+
     // Handle inbox emails and replies differently
     if (isInInbox) {
       this.handleInboxEmail(workItem);
     } else {
       this.handleReplyEmail(workItem, allWorkItems, reference);
     }
-  } 
-  
+  }
+
   handleInboxEmail(workItem: Workitem) {
     // Handle inbox email logic here, e.g., marking it as the starting point of a thread
     this.emailTrail = [workItem];
@@ -325,23 +314,23 @@ export class MailboxMainPageComponent implements OnInit {
     // Filter emails by reference, exclude the current email, and only include emails with lower IndNo
     const filteredEmails = this.getEmailsByReference(allWorkItems.workitems, reference)
       .filter(email => email.ID !== workItem.ID && email.properties.IndNo < workItem.properties.IndNo);
-      console.log('The filtered emails: ', filteredEmails);
-  
+    console.log('The filtered emails: ', filteredEmails);
+
     // If there are no other emails with the same reference and lower IndNo, don't show the email trail
     if (filteredEmails.length === 0) {
       this.hasTrail = 0;
       return;
     }
-  
+
     // Sort the emails in descending order by IndNo
     let sortedList = filteredEmails.sort((a, b) => b.properties.IndNo - a.properties.IndNo);
     console.log("Sorted List: ", sortedList);
-  
+
     this.hasTrail = filteredEmails.length;
     console.log("trail length: ", this.hasTrail);
 
     console.log('Filtered Emails By Reference: ', filteredEmails);
-  
+
     if (workItem.properties['Sensitivity'] === 'Reply') {
       this.isReply = true;
       const currentIndex = filteredEmails.findIndex((item) => item.properties.MessageBody === workItem.properties.MessageBody);
@@ -720,7 +709,7 @@ export class MailboxMainPageComponent implements OnInit {
       this.bodyHtmlElement = null;
 
       if (this.isReply) {
-        const body = this.testselectedEmail.properties.MessageBody;
+        const body = this.testselectedEmail ? this.testselectedEmail.properties.MessageBody : '';
 
         // Create the response message body
         const responseMessageBody = `
