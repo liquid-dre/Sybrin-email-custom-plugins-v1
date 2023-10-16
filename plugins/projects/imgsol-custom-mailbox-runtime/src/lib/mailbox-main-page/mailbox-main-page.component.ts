@@ -180,6 +180,8 @@ export class MailboxMainPageComponent implements OnInit {
   referenceNumber: string;
 
 
+  emailOpenStates: boolean[] = [];
+
   constructor(private bindingService: BindingService, private variableService: VariableService, private workItemPageService: WorkitemPageService,
     private sanitizer: DomSanitizer, private el: ElementRef, private renderer: Renderer2, private api: APIServiceBase,
     private pageService: PageService, private eventService: PluginEventsService, private cdr: ChangeDetectorRef) {
@@ -196,6 +198,8 @@ export class MailboxMainPageComponent implements OnInit {
     this.addressBookVar$ = this.bindingService.get(this.properties.addressBookBindingConfig);
     this.addressBookVar$.subscribe((v) => {
       console.log("V: ", v);
+
+
     })
 
     // Call the showEmailsByFolder function to display inbox emails on initialization
@@ -312,7 +316,7 @@ export class MailboxMainPageComponent implements OnInit {
 
   handleReplyEmail(workItem: Workitem, allWorkItems: any, reference: string) {
     // Filter emails by reference, exclude the current email, and only include emails with lower IndNo
-    const filteredEmails = this.getEmailsByReference(allWorkItems.workitems, reference)
+    let filteredEmails = this.getEmailsByReference(allWorkItems.workitems, reference)
       .filter(email => email.ID !== workItem.ID && email.properties.IndNo < workItem.properties.IndNo);
     console.log('The filtered emails: ', filteredEmails);
 
@@ -322,16 +326,20 @@ export class MailboxMainPageComponent implements OnInit {
       return;
     }
 
+    this.emailOpenStates = Array(filteredEmails.length).fill(false);
+    console.log('Initialised emailOpenStates : ', this.emailOpenStates);
+
     // Sort the emails in descending order by IndNo
-    let sortedList = filteredEmails.sort((a, b) => b.properties.IndNo - a.properties.IndNo);
+    let sortedList = filteredEmails.sort((a, b) => b.properties.IndNo - a.properties.IndNo).reverse();
     console.log("Sorted List: ", sortedList);
 
     this.hasTrail = filteredEmails.length;
     console.log("trail length: ", this.hasTrail);
 
+    filteredEmails = filteredEmails.reverse();
     console.log('Filtered Emails By Reference: ', filteredEmails);
 
-    if (workItem.properties['Sensitivity'] === 'Reply') {
+    if (workItem.properties['Subject'].toLowerCase().includes('re') || workItem.properties['Subject'].toLowerCase().includes('fw')) {
       this.isReply = true;
       const currentIndex = filteredEmails.findIndex((item) => item.properties.MessageBody === workItem.properties.MessageBody);
       console.log('current Index: ', currentIndex);
@@ -360,10 +368,16 @@ export class MailboxMainPageComponent implements OnInit {
   }
 
 
-  emailOpenStates: { [index: number]: boolean } = {};
-
   toggleEmail(index: number) {
-    this.emailOpenStates[index] = !this.emailOpenStates[index];
+    this.emailOpenStates = this.emailOpenStates.map((state, i) => {
+      if (i === index) {
+        return !state;
+      } else {
+        return state;
+      }
+    });
+    console.log("Index in toggleemail : ", index);
+    console.log("State in toggleemail : ", this.emailOpenStates[index]);
   }
 
   isEmailOpen(index: number): boolean {
