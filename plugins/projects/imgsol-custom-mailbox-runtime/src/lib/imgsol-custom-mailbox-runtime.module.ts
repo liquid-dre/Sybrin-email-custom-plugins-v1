@@ -8,9 +8,9 @@ import { MailboxEmailcontentComponent } from './mailbox-emailcontent/mailbox-ema
 import { CommonModule } from '@angular/common';
 import { ExamplesPageComponent } from './custom-components/examples-page/examples-page.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { FroalaEditorModule } from 'angular-froala-wysiwyg/editor/editor.module.js';
-import { FroalaViewModule } from 'angular-froala-wysiwyg/view/view.module.js';
 import { ImgsolCustomMailboxCommonModule } from 'imgsol-custom-mailbox-common';
+import { HttpClientModule } from '@angular/common/http';
+import { EditorModule } from '@tinymce/tinymce-angular';
 
 // import { JoditAngularModule } from 'jodit-angular/lib/jodit-angular.module';
 
@@ -23,7 +23,7 @@ import { ImgsolCustomMailboxCommonModule } from 'imgsol-custom-mailbox-common';
         MailboxEmailcontentComponent,
         ExamplesPageComponent],
     imports: [
-        FormsModule, ImgsolCustomMailboxCommonModule, CommonModule, NgbModule, FroalaEditorModule.forRoot(), FroalaViewModule.forRoot()
+        FormsModule, ImgsolCustomMailboxCommonModule, CommonModule, NgbModule.forRoot(), HttpClientModule, EditorModule,FormsModule
     ],
     exports: [ImgsolCustomMailboxRuntimeComponent]
 })

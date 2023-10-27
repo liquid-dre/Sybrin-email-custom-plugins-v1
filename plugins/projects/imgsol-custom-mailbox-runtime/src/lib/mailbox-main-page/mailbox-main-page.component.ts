@@ -1,19 +1,12 @@
-import { Component, Input, OnInit, Renderer2, ChangeDetectorRef, HostListener, ElementRef } from '@angular/core';
-import { BindingService, EntityDefinition, IDataVariable, IPageBase64, ObjectState, PageRequest, PageSide, PluginEventExecutionRequest, PluginEventsService, VariableService, Workitem, WorkitemPageService } from '@sybrin/plugin-client';
+import { Component, Input, OnInit, Renderer2, ChangeDetectorRef, HostListener, ElementRef, NgModule, OnDestroy } from '@angular/core';
+import { BindingService, EntityDefinition, IDataVariable, IPage, IPageBase64, ObjectState, PageRequest, PageSide, PluginEventExecutionRequest, PluginEventsService, VariableService, Workitem, WorkitemPageService } from '@sybrin/plugin-client';
 import { Observable } from 'rxjs';
 import { distinctUntilChanged, first, map, tap, filter, concatAll } from 'rxjs/operators';
 import { ImgsolCustomMailboxProperties } from 'imgsol-custom-mailbox-common';
 import { DomSanitizer, SafeResourceUrl, BrowserModule } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
-import { QuillEditorComponent } from 'ngx-quill';
-import { resolve } from 'url';
-import { createElement } from '@angular/core/src/view/element';
 import { PageService } from '../services/get-page-data.service';
 import { APIServiceBase } from '@sybrin/extensions';
-// import { read } from 'fs';
-// import { error } from 'console';
-
-
+declare var tinymce: any;
 interface Email {
   sender: string; subject: string;
   body: string; folder: string;
@@ -22,26 +15,26 @@ interface Email {
   id: string;
 }
 
-export declare class FileAttachment {
-  FileData: any[];
-  FileStoreDefinitionID: string;
-  FileName: string;
-  FileDescription: string;
-  FileLocation: string;
-}
-
+interface FileAttachment
+ {    
+     FileData: Uint8Array | string;
+     FileStoreDefinitionID?: string;    
+     FileName: string;    
+     FileDescription?: string;    
+     FileLocation?: string; 
+ }
 
 export interface Notification {
   DistributionListIDs?: string[];
   EmailAccountIDs: string[];
   SMSAccountIDs?: string[];
-  Attachments: FileAttachment[];
-  // DistributionList?: DistributionList | null;
+  Attachments: any[];
+  DistributionList?: any;
   NotificationTemplateID: string;
-  // ValueItems: ValueItems;
-  ValueObject: any; // Use a suitable TypeScript interface or type for ValueObject if possible.
-  // RecipientPredicateFilter: SybPredicateGroup | null;
-  // DestinationOverride: NotificationDestinationOverride | null;
+  ValueItems: any | null;
+  ValueObject: any ; // Use a suitable TypeScript interface or type for ValueObject if possible.
+  RecipientPredicateFilter:  any;
+  DestinationOverride: any;
   RecipientIDs: string[];
   EmailAddresses: string[];
   CCEmailAddresses: string[];
@@ -59,6 +52,7 @@ export interface Notification {
 })
 
 export class MailboxMainPageComponent implements OnInit {
+
 
   @Input() public properties: ImgsolCustomMailboxProperties;
   inboxActive: boolean = true;
@@ -179,6 +173,7 @@ export class MailboxMainPageComponent implements OnInit {
   isMoreOptionsClicked: boolean = false;
   referenceNumber: string;
 
+  htmlContent: string = "";
 
   emailOpenStates: boolean[] = [];
 
@@ -188,8 +183,12 @@ export class MailboxMainPageComponent implements OnInit {
 
   }
 
-
   ngOnInit() {
+
+
+
+
+
 
     console.log('Com[onent Initialised');
     document.body.addEventListener('click', this.onDocumentClick.bind(this));
@@ -268,6 +267,7 @@ export class MailboxMainPageComponent implements OnInit {
   }
 
   async showEmailDetails(workItem: Workitem) {
+    this.showComposeModal = this.showReplyModal = this.showForwardModal = false;
     this.isReply = false;
     this.hasTrail = 0;
     let variableID = this.properties.dataBindingConfig.variableId;
@@ -580,6 +580,35 @@ export class MailboxMainPageComponent implements OnInit {
     this.recipient = this.subject = this.cc = this.sender = this.body = ''
   }
 
+//   base64ToArrayBuffer(base64) {
+//     //var binary_string = window.atob(base64);
+//     var binary_string =  new Buffer(base64, 'base64').toString('binary');
+//     var len = binary_string.length;
+//     var bytes = new Uint8Array(len);
+//     for (var i = 0; i < len; i++) {
+//         bytes[i] = binary_string.charCodeAt(i);
+//     }
+//     return Array.from(bytes);
+// }
+ base64ToArrayBuffer(base64) {
+  // Decode Base64 string to binary string
+  var binary_string = atob(base64);
+
+  // Get the length of the binary string
+  var len = binary_string.length;
+
+  // Create an array of unsigned 8-bit integers (bytes)
+  var bytes = new Uint8Array(len);
+
+  // Iterate over the binary string and store the char codes in the byte array
+  for (var i = 0; i < len; i++) {
+      bytes[i] = binary_string.charCodeAt(i);
+  }
+
+  // Return the Uint8Array directly
+  return bytes;
+}
+
 
   async onAttachmentUpload(event: any) {
 
@@ -593,6 +622,7 @@ export class MailboxMainPageComponent implements OnInit {
       if (files && files.length > 0) {
 
         for (const file of files) {
+          this.attachments.push(file);
           let page = await this.workItemPageService.addPageFromFile(this.vworkItems[0].ID, file, (event) => {
             console.log('This is the event', event);
           });
@@ -623,24 +653,40 @@ export class MailboxMainPageComponent implements OnInit {
         }
       }
     }
-    console.log('Reading file as base64: ', file.name);
-
+    console.log('Reading file as base64: ', file);
+    
     const base64Data = await this.readFileAsBase64(file);
     console.log('Base64 data for file: ', file.name, ':', base64Data);
+
+    
     return {
       FileName: file.name,
       base64: base64Data
     };
   }
 
+
   async readFileAsBase64(file: File): Promise<string> {
+    // var blob = new Blob([file], { type: file.type });
+
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = error => reject(error);
-      reader.readAsDataURL(file);
-    });
-  }
+  
+      reader.onload = () => {
+        if (reader.result && typeof reader.result === 'string') {
+          const base64String = btoa(reader.result);
+          resolve(base64String);
+        } else {
+          reject(new Error('Failed to read file as base64'));
+        }
+      };
+  
+      reader.onerror = (error) => {
+        reject(error);
+      };
+  
+      reader.readAsBinaryString(file);
+  })};
 
   async onFileChange(event: Event) {
     const inputElement = event.target as HTMLInputElement;
@@ -715,7 +761,6 @@ export class MailboxMainPageComponent implements OnInit {
 
 
 
-
   async sendEmail() {
     try {
       const variableId = this.properties.dataBindingConfig.variableId;
@@ -767,9 +812,10 @@ export class MailboxMainPageComponent implements OnInit {
       workItem.properties['FolderID'] = '2';
       workItem.properties['Folder'] = 'Sent';
       workItem.properties['EmailType'] = '0';
-      workItem.properties['To'] = this.replyRecipient ? this.replyRecipient : this.recipient;
+
+      workItem.properties['To'] = this.replyRecipient ? this.replyRecipient.split(';').map(substring => substring.replace(/\s/g, '')) : this.recipient.split(';').map(substring => substring.replace(/\s/g, ''));
       workItem.properties['ReplyTo'] = 'NULL';
-      workItem.properties['CC'] = this.cc || "";
+      workItem.properties['CC'] = this.cc.split(';') || "";
       workItem.properties['Subject'] = this.replySubject ? this.replySubject : this.subject;
       workItem.properties['From'] = 'adingiswayo@imgsol.co.zw';
       workItem.properties['MessageBody'] = this.bodyHtmlElement ? this.bodyHtmlElement.innerHTML : this.body;
@@ -778,7 +824,7 @@ export class MailboxMainPageComponent implements OnInit {
       workItem.properties['Priority'] = 'Normal';
       workItem.properties['NotificationTemplateID'] = '02de7fdf-68c5-436c-9367-86f2329553f5';
 
-      console.log("att...", this.attachments)
+      console.log("att...", this.vworkItems[0].Pages)
 
       const updates = [{
         properties: { ...workItem.properties },
@@ -786,27 +832,49 @@ export class MailboxMainPageComponent implements OnInit {
         ID: workItem.ID
       }];
 
-      console.log('Updates :', updates);
+      let base64Attachments = [];
 
+
+      for (var i = 0 ; i < this.attachments.length ; i++){
+        let base64 = await this.getPageData(this.attachments[i],this.vworkItems[0]);
+        base64Attachments.push({
+          FileData: base64.base64,
+          FileName: this.vworkItems[0].Pages[i].Description
+        });
+      }
+
+      console.log('Updates :', updates);
+      console.log("Attachments..",this.attachments,"Work items..",this.vworkItems);
+      // let base64 = await this.getPageData(this.attachments[0],this.vworkItems[0]);
+
+      // // let bufferArray = this.base64ToArrayBuffer(base64.base64);
+
+      // let attachment: FileAttachment= {
+      //   FileData : base64.base64,
+      //   FileName: "Test.pdf",
+      // }
+
+      // console.log("Base 64...",base64);
+      // console.log("attachment..", attachment);
 
 
       const notification: Notification = {
         DistributionListIDs: [],
         EmailAccountIDs: ["487f7f98-84a9-4f0d-8ac5-c5a37c45c05f"],
         SMSAccountIDs: [],
-        Attachments: [],
-        // DistributionList: null,
+        Attachments: base64Attachments,
+        DistributionList: null,
         NotificationTemplateID: workItem.properties['NotificationTemplateID'],
-        // ValueItems: null, // Assuming ValueItems is a class.
+        ValueItems: null, // Assuming ValueItems is a class.
         ValueObject: {
           "subject": workItem.properties.Subject,
           "body": workItem.properties.MessageBody,
         },
-        // RecipientPredicateFilter: null,
-        // DestinationOverride: 1,
+        RecipientPredicateFilter: null,
+        DestinationOverride: 1,
         RecipientIDs: [],
-        EmailAddresses: [workItem.properties.To],
-        CCEmailAddresses: [workItem.properties.CC],
+        EmailAddresses: workItem.properties.To,
+        CCEmailAddresses: [],
         BCCEmailAddresses: [],
         ReferenceID: "",
         ContactNumbers: [],
@@ -1069,7 +1137,10 @@ export class MailboxMainPageComponent implements OnInit {
       }
     }
     this.showReplyModal = !this.showReplyModal;
-    this.replySubject = `Re: ${this.testselectedEmail && this.testselectedEmail.properties.Subject || ''}`;
+    this.showComposeModal = this.showForwardModal = false;
+    if (!this.replySubject.includes("Re")) {
+      this.replySubject = `Re: ${this.testselectedEmail && this.testselectedEmail.properties.Subject || ''}`;
+    }
     this.replyRecipient = this.testselectedEmail && this.testselectedEmail.properties.From || '';
     this.replyBody = `{{${this.testselectedEmail && this.testselectedEmail.properties.ID}}}\n\n`;
     this.replyAttachments = [];
@@ -1091,7 +1162,10 @@ export class MailboxMainPageComponent implements OnInit {
       }
     }
     this.showForwardModal = !this.showForwardModal;
-    this.replySubject = `Fw: ${this.testselectedEmail && this.testselectedEmail.properties.Subject || ''}`;
+    this.showComposeModal = this.showReplyModal = false;
+    if (!this.replySubject.includes("Fw")) {
+      this.replySubject = `Fw: ${this.testselectedEmail && this.testselectedEmail.properties.Subject || ''}`;
+    }
     this.replyBody = `{{${this.testselectedEmail && this.testselectedEmail.properties.ID}}}\n\n`;
     this.replyAttachments = [];
   }

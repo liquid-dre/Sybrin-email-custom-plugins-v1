@@ -1,307 +1,644 @@
-<head>
-
-</head>
-
+<head> </head>
+ 
 <body>
-
-
-  <div class="header"> <button id="expand-button" class="expand-button" (click)="toggleSidebar()">≡</button>
+  <div class="header">
+    <button id="expand-button" class="expand-button" (click)="toggleSidebar()">
+      ≡
+    </button>
     <div class="title">Sybrin Mail</div>
     <!-- <button class="refresh-button" (click)="refreshEmails()">Refresh Emails</button> -->
-    <div class="search-bar"> <input type="text" placeholder="Search..." [(ngModel)]="searchQuery"
-        [ngModelOptions]="{standalone:true}" autocomplete="off">
-      <div class="search-icon" (click)="showEmailsByFolder(selectedFolder, $event)">&#128269;</div>
+    <div class="search-bar">
+      <input
+        type="text"
+        placeholder="Search..."
+        [(ngModel)]="searchQuery"
+        [ngModelOptions]="{ standalone: true }"
+        autocomplete="off"
+      />
+      <div
+        class="search-icon"
+        (click)="showEmailsByFolder(selectedFolder, $event)"
+      >
+        <!-- &#128269; -->
+        
+      </div>
     </div>
     <div class="search-dropdown">
-      <div class="search-dropdown-toggle" (click)="toggleSearchDropdown()"> Search in
+      <div class="search-dropdown-toggle" (click)="toggleSearchDropdown()">
+        Search in
         <i class="arrow-icon">&#9662;</i>
       </div>
       <ul class="search-dropdown-menu" [class.show]="isSearchDropdownOpen">
-        <li (click)="selectedFolder = 'Inbox'; showEmailsByFolder('Inbox', $event)">Inbox</li>
-        <li (click)="selectedFolder = 'Outbox'; showEmailsByFolder('Outbox', $event)">Outbox</li>
-        <li (click)="selectedFolder = 'Sent'; showEmailsByFolder('Sent', $event)">Sent</li>
-        <li (click)="selectedFolder = 'Failed'; showEmailsByFolder('Failed', $event)">Failed</li>
+        <li
+          (click)="
+            selectedFolder = 'Inbox'; showEmailsByFolder('Inbox', $event)
+          "
+        >
+          Inbox
+        </li>
+        <li
+          (click)="
+            selectedFolder = 'Outbox'; showEmailsByFolder('Outbox', $event)
+          "
+        >
+          Outbox
+        </li>
+        <li
+          (click)="selectedFolder = 'Sent'; showEmailsByFolder('Sent', $event)"
+        >
+          Sent
+        </li>
+        <li
+          (click)="
+            selectedFolder = 'Failed'; showEmailsByFolder('Failed', $event)
+          "
+        >
+          Failed
+        </li>
       </ul>
     </div>
   </div>
 
   <div class="con">
     <div class="sidebar" [hidden]="!isSidebarExpanded">
-      <button class="compose-button" (click)="toggleComposeModal()">Compose</button>
+      <button class="compose-button" (click)="toggleComposeModal()">
+        Compose
+      </button>
       <ul class="sidebar-list">
-        <li><a href="#" (click)="showEmailsByFolder('Inbox', $event)"
-            [class.active]="selectedFolder === 'Inbox'">Inbox</a></li>
-        <li><a href="#" (click)="showEmailsByFolder('Outbox', $event)"
-            [class.active]="selectedFolder === 'Outbox'">Outbox</a></li>
-        <li><a href="#" (click)="showEmailsByFolder('Sent', $event)" [class.active]="selectedFolder === 'Sent'">Sent</a>
+        <li>
+          <a
+            href="#"
+            (click)="showEmailsByFolder('Inbox', $event)"
+            [class.active]="selectedFolder === 'Inbox'"
+            >Inbox</a
+          >
         </li>
-        <li><a href="#" (click)="showEmailsByFolder('Failed', $event)"
-            [class.active]="selectedFolder === 'Failed'">Failed</a></li>
-        <li><a (click)="openAddressBook('AddressBook')" [class.active]="selectedFolder === 'AddressBook'">Address
-            Book</a></li>
+        <li>
+          <a
+            href="#"
+            (click)="showEmailsByFolder('Outbox', $event)"
+            [class.active]="selectedFolder === 'Outbox'"
+            >Outbox</a
+          >
+        </li>
+        <li>
+          <a
+            href="#"
+            (click)="showEmailsByFolder('Sent', $event)"
+            [class.active]="selectedFolder === 'Sent'"
+            >Sent</a
+          >
+        </li>
+        <li>
+          <a
+            href="#"
+            (click)="showEmailsByFolder('Failed', $event)"
+            [class.active]="selectedFolder === 'Failed'"
+            >Failed</a
+          >
+        </li>
+        <li>
+          <a
+            (click)="openAddressBook('AddressBook')"
+            [class.active]="selectedFolder === 'AddressBook'"
+            >Address Book</a
+          >
+        </li>
       </ul>
-
     </div>
 
     <div class="emails">
-      <div *ngIf="(workItems$ | async) as workitems">
-        <div *ngFor=" let email of workitems.workitems" class="email-item" [class.selected]="testselectedEmail===email"
+      <div *ngIf="workItems$ | async as workitems">
+        <div
+          *ngFor="let email of workitems.workitems"
+          class="email-item"
+          [class.selected]="testselectedEmail === email"
           [class.read]="email.properties.FolderID === '99'"
-          [class.unread]="email.properties.FolderID !== '99' && email.properties.Folder==='Inbox'"
-          (click)="increaseClickCount(email); showEmailDetails(email)">
+          [class.unread]="
+            email.properties.FolderID !== '99' &&
+            email.properties.Folder === 'Inbox'
+          "
+          (click)="increaseClickCount(email); showEmailDetails(email)"
+        >
           <div class="email-details">
-            <div class="recipients">{{email.properties.From}}</div>
-            <div class="subject">{{email.properties.Subject}}</div>
+            <div class="recipients">{{ email.properties.From }}</div>
+            <div class="subject">{{ email.properties.Subject }}</div>
           </div>
         </div>
       </div>
     </div>
 
-
     <div class="right-section">
-      <div *ngIf="!testSelectedEmailID" class="select-item-text"> Select an item to read</div>
-
+      <div *ngIf="!testSelectedEmailID" class="select-item-text">
+        Select an item to read
+      </div>
+     
+     
       <!-- Reply Modal -->
-      <div class="email-reply-modal" [class.show]="showReplyModal" (click)="bringReplyModalToFront()">
-        <button class="close-button" (click)="closeReplyModal()"> &times; </button>
+      <div
+        class="email-reply-modal"
+        [class.show]="showReplyModal"
+        (click)="bringReplyModalToFront()"
+      >
+        <button class="close-button" (click)="closeReplyModal()">
+          &times;
+        </button>
         <form>
-          <div class="buttons"> <button class="send-button" (click)="sendEmail()">Send</button> </div>
+          <div class="buttons">
+            <button class="send-button" (click)="sendEmail()">Send</button>
+          </div>
           <div class="email-meta">
-            <div class="to-container" (click)="toReply(); onEmailInputClick('replyToHr',$event)" data-hr="replyToHr">
+            <div
+              class="to-container"
+              (click)="toReply(); onEmailInputClick('replyToHr', $event)"
+              data-hr="replyToHr"
+            >
               <label for="replyRecipient">To:</label>
-              <input type="text" id="replyRecipient" [(ngModel)]="replyRecipient"
-                [ngModelOptions]="{ standalone: true }" required autocomplete="off">
+              <input
+                type="text"
+                id="replyRecipient"
+                [(ngModel)]="replyRecipient"
+                [ngModelOptions]="{ standalone: true }"
+                required
+                autocomplete="off"
+              />
             </div>
-            <hr class="input-field-hr" id="replyToHr">
-            <div class="cc-container" (click)="ccCompose(); onEmailInputClick('replyCCHr',$event)" data-hr="replyCCHr">
+            <hr class="input-field-hr" id="replyToHr" />
+            <div
+              class="cc-container"
+              (click)="ccCompose(); onEmailInputClick('replyCCHr', $event)"
+              data-hr="replyCCHr"
+            >
               <label for="cc">CC: </label>
-              <input type="text" id="cc" [(ngModel)]="cc" [ngModelOptions]="{standalone:true}" required
-                autocomplete="off">
+              <input
+                type="text"
+                id="cc"
+                [(ngModel)]="cc"
+                [ngModelOptions]="{ standalone: true }"
+                required
+                autocomplete="off"
+              />
             </div>
-            <hr class="input-field-hr" id="replyCCHr">
+            <hr class="input-field-hr" id="replyCCHr" />
             <div class="subject-container">
               <label for="replySubject">Subject:</label>
-              <input type="text" id="replySubject" [(ngModel)]="replySubject" [ngModelOptions]="{ standalone: true }"
-                required autocomplete="off">
+              <input
+                type="text"
+                id="replySubject"
+                [(ngModel)]="replySubject"
+                [ngModelOptions]="{ standalone: true }"
+                required
+                autocomplete="off"
+              />
             </div>
           </div>
-          <hr>
-          <textarea class="compose-email-message-body" [(ngModel)]="body" [ngModelOptions]="{standalone:true}"
-            required></textarea>
-          <br><br>
-          <div class="attachments" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+          <hr />
+          <!-- <textarea
+            class="compose-email-message-body"
+            [(ngModel)]="body"
+            [ngModelOptions]="{ standalone: true }"
+            required
+          ></textarea> -->
+          <editor
+          [init]="{
+            skin: 'oxide',
+            menubar: false,
+            content_css: 'light',
+            base_url: 'assets/tinymce',
+            suffix: '.min',
+            height: 400,
+            plugins: [
+              'advlist autolink lists link charmap print anchor',
+              'searchreplace code fullscreen',
+              'insertdatetime media image table paste code help wordcount table'
+            ],
+            toolbar:
+              'undo redo | bold italic code | formatselect backcolor | \
+            alignleft aligncenter alignright alignjustify | \
+            bullist numlist outdent indent | table | removeformat | help'
+          }"
+          [(ngModel)]="body"
+          [ngModelOptions]="{ standalone: true }"
+          required></editor>
+
+          <br /><br />
+          <div
+            class="attachments"
+            (dragover)="onDragOver($event)"
+            (drop)="onDrop($event)"
+          >
             <label for="attachmentInput">Attachments: </label>
-            <input type="file" id="attachmentInput" (change)="onAttachmentUpload($event)" multiple>
-            <div *ngIf="vworkItems && vworkItems.length>0">
+            <input
+              type="file"
+              id="attachmentInput"
+              (change)="onAttachmentUpload($event)"
+              multiple
+            />
+            <div *ngIf="vworkItems && vworkItems.length > 0">
               <div draggable="true">
-                <button (click)="clickPreviewButton()" class="attachment-preview-button"> Preview Attachments
+                <button
+                  (click)="clickPreviewButton()"
+                  class="attachment-preview-button"
+                >
+                  Preview Attachments
                 </button>
               </div>
-              <div *ngFor="let attachment of vworkItems[0].Pages; let i = index">
+              <div
+                *ngFor="let attachment of vworkItems[0].Pages; let i = index"
+              >
                 <button (click)="removeAttachment(i)">Remove</button>
-                <span>{{attachment.LocationPath }}</span>
-                <br><br>
+                <span>{{ attachment.LocationPath }}</span>
+                <br /><br />
               </div>
             </div>
-            <br>
+            <br />
           </div>
-          <button class="clear-button" *ngIf="attachments.length>0" (click)="clearAttachments()">Clear
-            All &times;</button>
+          <button
+            class="clear-button"
+            *ngIf="attachments.length > 0"
+            (click)="clearAttachments()"
+          >
+            Clear All &times;
+          </button>
         </form>
       </div>
 
       <!-- Compose Modal -->
-      <div class="email-compose-modal" [class.grabbing]="isDragging" [class.show]="showComposeModal"
-        (click)="bringComposeModalToFront()">
-        <button class="close-button" (click)="closeComposeModal()"> &times; </button>
+      <div
+        class="email-compose-modal"
+        [class.grabbing]="isDragging"
+        [class.show]="showComposeModal"
+        (click)="bringComposeModalToFront()"
+      >
+     
+        <button class="close-button" (click)="closeComposeModal()">
+          &times;
+        </button>
         <form class="compose-form">
-
           <div class="buttons">
             <button class="send-button" (click)="sendEmail()">Send</button>
           </div>
 
           <div class="email-meta">
-            <div class="to-container" (click)="toCompose(); onEmailInputClick('composeToHr',$event)"
-              data-hr="composeToHr">
+            <div
+              class="to-container"
+              (click)="toCompose(); onEmailInputClick('composeToHr', $event)"
+              data-hr="composeToHr"
+            >
               <label for="recipient">To: </label>
-              <input type="text" id="recipient" [(ngModel)]="recipient" [ngModelOptions]="{standalone:true}" required
-                autocomplete="off">
+              <input
+                type="text"
+                id="recipient"
+                [(ngModel)]="recipient"
+                [ngModelOptions]="{ standalone: true }"
+                required
+                autocomplete="off"
+              />
             </div>
-            <hr class="input-field-hr" id="composeToHr">
-            <div class="cc-container" (click)="ccCompose(); onEmailInputClick('composeCCHr',$event)"
-              data-hr="composeCCHr">
+            <hr class="input-field-hr" id="composeToHr" />
+            <div
+              class="cc-container"
+              (click)="ccCompose(); onEmailInputClick('composeCCHr', $event)"
+              data-hr="composeCCHr"
+            >
               <label for="cc">CC: </label>
-              <input type="text" id="cc" [(ngModel)]="cc" [ngModelOptions]="{standalone:true}" required
-                autocomplete="off">
+              <input
+                type="text"
+                id="cc"
+                [(ngModel)]="cc"
+                [ngModelOptions]="{ standalone: true }"
+                required
+                autocomplete="off"
+              />
             </div>
-            <hr class="input-field-hr" id="composeCCHr">
+            <hr class="input-field-hr" id="composeCCHr" />
             <div class="subject-container">
               <label for="subject">Subject: </label>
-              <input type="text" id="subject" [(ngModel)]="subject" [ngModelOptions]="{standalone:true}" required
-                autocomplete="off">
+              <input
+                type="text"
+                id="subject"
+                [(ngModel)]="subject"
+                [ngModelOptions]="{ standalone: true }"
+                required
+                autocomplete="off"
+              />
             </div>
+            
           </div>
-          <hr>
-          <textarea id="emailMessageBody" class="compose-email-message-body" [(ngModel)]="body"
-            [ngModelOptions]="{standalone:true}" required autocomplete="off"></textarea>
-          <br><br>
-          <div class="attachments" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+          <hr />
+          <editor
+            [init]="{
+              skin: 'oxide',
+              menubar: false,
+              content_css: 'light',
+              base_url: 'assets/tinymce',
+              suffix: '.min',
+              height: 400,
+              plugins: [
+                'advlist autolink lists link charmap print anchor',
+                'searchreplace code fullscreen',
+                'insertdatetime media image table paste code help wordcount table'
+              ],
+              toolbar:
+                'undo redo | bold italic code | formatselect backcolor | \
+              alignleft aligncenter alignright alignjustify | \
+              bullist numlist outdent indent | table | removeformat | help'
+            }"
+            [(ngModel)]="body"
+            [ngModelOptions]="{ standalone: true }"
+            required></editor>
+
+          <br /><br />
+          <div
+            class="attachments"
+            (dragover)="onDragOver($event)"
+            (drop)="onDrop($event)"
+          >
             <label for="attachmentInput">Attachments: </label>
-            <input type="file" id="attachmentInput" (change)="onAttachmentUpload($event)" multiple>
-            <div *ngIf="vworkItems && vworkItems.length>0">
+            <input
+              type="file"
+              id="attachmentInput"
+              (change)="onAttachmentUpload($event)"
+              multiple
+            />
+            
+            <div *ngIf="vworkItems && vworkItems.length > 0">
               <div draggable="true">
-                <button (click)="clickPreviewButton()" class="attachment-preview-button"> Preview Attachments
+                <button
+                  (click)="clickPreviewButton()"
+                  class="attachment-preview-button"
+                >
+                  Preview Attachments
                 </button>
               </div>
-              <div *ngFor="let attachment of vworkItems[0].Pages; let i = index">
+              <div
+                *ngFor="let attachment of vworkItems[0].Pages; let i = index"
+              >
                 <button (click)="removeAttachment(i)">Remove</button>
-                <span>{{attachment.LocationPath }}</span>
-                <br><br>
+                <span>{{ attachment.LocationPath }}</span>
+                <br /><br />
               </div>
             </div>
-            <br>
+            <br />
           </div>
-          <button class="clear-button" *ngIf="attachments.length>0" (click)="clearAttachments()">Clear
-            All &times;</button>
+          <button
+            class="clear-button"
+            *ngIf="attachments.length > 0"
+            (click)="clearAttachments()"
+          >
+            Clear All &times;
+          </button>
         </form>
       </div>
-
 
       <!-- Forward Modal -->
-      <div class="email-forward-modal" [class.show]="showForwardModal" (click)="bringForwardModalToFront()">
-        <button class="close-button" (click)="closeForwardModal()"> &times; </button>
+      <div
+        class="email-forward-modal"
+        [class.show]="showForwardModal"
+        (click)="bringForwardModalToFront()"
+      >
+        <button class="close-button" (click)="closeForwardModal()">
+          &times;
+        </button>
         <form>
-          <div class="buttons"> <button class="send-button" (click)="sendEmail()">Send</button> </div>
+          <div class="buttons">
+            <button class="send-button" (click)="sendEmail()">Send</button>
+          </div>
           <div class="email-meta">
-            <div class="to-container" (click)="toReply(); onEmailInputClick('forwardToHr',$event)"
-              data-hr="forwardToHr">
+            <div
+              class="to-container"
+              (click)="toReply(); onEmailInputClick('forwardToHr', $event)"
+              data-hr="forwardToHr"
+            >
               <label for="replyRecipient">To:</label>
-              <input type="text" id="replyRecipient" [(ngModel)]="replyRecipient"
-                [ngModelOptions]="{ standalone: true }" required autocomplete="off">
+              <input
+                type="text"
+                id="replyRecipient"
+                [(ngModel)]="replyRecipient"
+                [ngModelOptions]="{ standalone: true }"
+                required
+                autocomplete="off"
+              />
             </div>
-            <hr class="input-field-hr" id="forwardToHr">
-            <div class="cc-container" (click)="ccCompose(); onEmailInputClick('forwardCCHr',$event)"
-              data-hr="forwardCCHr">
+            <hr class="input-field-hr" id="forwardToHr" />
+            <div
+              class="cc-container"
+              (click)="ccCompose(); onEmailInputClick('forwardCCHr', $event)"
+              data-hr="forwardCCHr"
+            >
               <label for="cc">CC: </label>
-              <input type="text" id="cc" [(ngModel)]="cc" [ngModelOptions]="{standalone:true}" required
-                autocomplete="off">
+              <input
+                type="text"
+                id="cc"
+                [(ngModel)]="cc"
+                [ngModelOptions]="{ standalone: true }"
+                required
+                autocomplete="off"
+              />
             </div>
-            <hr class="input-field-hr" id="forwardCCHr">
+            <hr class="input-field-hr" id="forwardCCHr" />
             <div class="subject-container">
               <label for="replySubject">Subject:</label>
-              <input type="text" id="replySubject" [(ngModel)]="replySubject" [ngModelOptions]="{ standalone: true }"
-                required autocomplete="off">
+              <input
+                type="text"
+                id="replySubject"
+                [(ngModel)]="replySubject"
+                [ngModelOptions]="{ standalone: true }"
+                required
+                autocomplete="off"
+              />
             </div>
           </div>
-          <hr>
-          <textarea class="compose-email-message-body" [(ngModel)]="body" [ngModelOptions]="{standalone:true}" required
-            autocomplete="off"></textarea>
-          <br><br>
-          <div class="attachments" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+          <hr />
+          <!-- <textarea
+            class="compose-email-message-body"
+            [(ngModel)]="body"
+            [ngModelOptions]="{ standalone: true }"
+            required
+            autocomplete="off"
+          ></textarea> -->
+          <editor
+          [init]="{
+            skin: 'oxide',
+            menubar: false,
+            content_css: 'light',
+            base_url: 'assets/tinymce',
+            suffix: '.min',
+            height: 400,
+            plugins: [
+              'advlist autolink lists link charmap print anchor',
+              'searchreplace code fullscreen',
+              'insertdatetime media image table paste code help wordcount table'
+            ],
+            toolbar:
+              'undo redo | bold italic code | formatselect backcolor | \
+            alignleft aligncenter alignright alignjustify | \
+            bullist numlist outdent indent | table | removeformat | help'
+          }"
+          [(ngModel)]="body"
+          [ngModelOptions]="{ standalone: true }"
+          required></editor>
+
+          <br /><br />
+          <div
+            class="attachments"
+            (dragover)="onDragOver($event)"
+            (drop)="onDrop($event)"
+          >
             <label for="attachmentInput">Attachments: </label>
-            <input type="file" id="attachmentInput" (change)="onAttachmentUpload($event)" multiple>
-            <div *ngIf="vworkItems && vworkItems.length>0">
+            <input
+              type="file"
+              id="attachmentInput"
+              (change)="onAttachmentUpload($event)"
+              multiple
+            />
+            <div *ngIf="vworkItems && vworkItems.length > 0">
               <div draggable="true">
-                <button (click)="clickPreviewButton()" class="attachment-preview-button"> Preview Attachments
+                <button
+                  (click)="clickPreviewButton()"
+                  class="attachment-preview-button"
+                >
+                  Preview Attachments
                 </button>
               </div>
-              <div *ngFor="let attachment of vworkItems[0].Pages; let i = index">
+              <div
+                *ngFor="let attachment of vworkItems[0].Pages; let i = index"
+              >
                 <button (click)="removeAttachment(i)">Remove</button>
-                <span>{{attachment.LocationPath }}</span>
-                <br><br>
+                <span>{{ attachment.LocationPath }}</span>
+                <br /><br />
               </div>
             </div>
-            <br>
+            <br />
           </div>
-          <button class="clear-button" *ngIf="attachments.length>0" (click)="clearAttachments()">Clear
-            All &times;</button>
+          <button
+            class="clear-button"
+            *ngIf="attachments.length > 0"
+            (click)="clearAttachments()"
+          >
+            Clear All &times;
+          </button>
         </form>
       </div>
 
-
-
       <!-- Viewing Modal -->
-      <div class="email-details-modal" *ngIf="testselectedEmail" [class.show]="testSelectedEmailID" (click)="bringEmailDetailsToFront()">
+      <div
+        class="email-details-modal"
+        *ngIf="testselectedEmail"
+        [class.show]="testSelectedEmailID"
+        (click)="bringEmailDetailsToFront()"
+      >
         <button class="close-button" (click)="closeEmailPreview()">
           &times;
         </button>
         <div class="buttons">
-          <button class="reply-button" (click)="openReplyModal()">&#8592; Reply</button>
-          <button (click)="openForwardModal()" class="forward-button">Forward &#8594;</button>
-          <button class="more-options-button" id="more-options-button" [class.clicked]="isMoreOptionsClicked"
-            (click)="clickMoreOptions()"> More Options :
+          <button class="reply-button" (click)="openReplyModal()">
+            &#8592; Reply
+          </button>
+          <button (click)="openForwardModal()" class="forward-button">
+            Forward &#8594;
+          </button>
+          <button
+            class="more-options-button"
+            id="more-options-button"
+            [class.clicked]="isMoreOptionsClicked"
+            (click)="clickMoreOptions()"
+          >
+            More Options :
           </button>
         </div>
-        <h2 class="subject">{{testselectedEmail.properties.Subject}}</h2>
+        <h2 class="subject">{{ testselectedEmail.properties.Subject }}</h2>
         <div class="email-meta">
-          <div class="recipients">From: {{testselectedEmail.properties.From}}</div>
-          <div class="cc">To: {{testselectedEmail.properties.To}}</div>
-          <div class="cc">CC: {{testselectedEmail.properties.CC}}</div>
+          <div class="recipients">
+            From: {{ testselectedEmail.properties.From }}
+          </div>
+          <div class="cc">To: {{ testselectedEmail.properties.To }}</div>
+          <div class="cc">CC: {{ testselectedEmail.properties.CC }}</div>
           <div class="date-favorite-options">
-            <div class="date">{{testselectedEmail.properties.ProcessDate | date:'dd-MM-yyyy HH:mm'}}</div>
+            <div class="date">
+              {{
+                testselectedEmail.properties.ProcessDate
+                  | date : "dd-MM-yyyy HH:mm"
+              }}
+            </div>
           </div>
         </div>
-        <hr class="hr-text">
-        <button (click)="clickInboxPreviewButton()" class="attachment-preview-button">
+        <hr class="hr-text" />
+        <button
+          (click)="clickInboxPreviewButton()"
+          class="attachment-preview-button"
+        >
           Attachments
         </button>
-        <hr class="hr-text">
+        <hr class="hr-text" />
 
         <!-- Original Message Body (Plain Text) -->
-        <div class="email-message-body" [class.html-content]="!isHtml" *ngIf="!isHtml">
-          {{testselectedEmail.properties.MessageBody}}
+        <div
+          class="email-message-body"
+          [class.html-content]="!isHtml"
+          *ngIf="!isHtml"
+        >
+          {{ testselectedEmail.properties.MessageBody }}
         </div>
 
-        <div class="email-message-body" [class.html-content]="isHtml" *ngIf="isHtml">
+        <div
+          class="email-message-body"
+          [class.html-content]="isHtml"
+          *ngIf="isHtml"
+        >
           <div [innerHTML]="testselectedEmail.properties.MessageBody"></div>
         </div>
+        
 
         <!-- Response Message Body (HTML) 
         <div class="email-message-body" [class.html-content]="isHtml && this.isReply">
           <div [innerHTML]="isHtml && this.isReply ? responseMessageBody: ''"></div>
         </div> -->
-        <br><br>
+        <br /><br />
 
         <!-- Email Trail -->
         <div class="email-trail" *ngIf="hasTrail !== 0">
-          <div *ngFor="let email of emailTrail; let i = index" class="email-trail-item">
+          <div
+            *ngFor="let email of emailTrail; let i = index"
+            class="email-trail-item"
+          >
             <div class="email-trail-header" (click)="toggleEmail(i)">
-              <h2>Reference Number : {{referenceNumber}}</h2>
+              <h2>Reference Number : {{ referenceNumber }}</h2>
               <p><strong>From:</strong> {{ email.properties.From }}</p>
             </div>
-            <div *ngIf="isEmailOpen(i)" [innerHTML]="responseMessageBody" class="email-trail-body"></div>
+            <div
+              *ngIf="isEmailOpen(i)"
+              [innerHTML]="responseMessageBody"
+              class="email-trail-body"
+            ></div>
           </div>
         </div>
 
-
-
-        <hr class="hr-text">
+        <hr class="hr-text" />
       </div>
-
-
     </div>
-
   </div>
 
-
-  <br>
-
+  <br />
 
   <!-- <div *ngIf="(addressBookVar$ | async) as workitems" id="addressbook" class="address-book"> -->
 
   <div *ngIf="showAddressBook" class="address-book" id="addressbook">
-    <div *ngIf="(addressBookVar$ | async) as workitems" class="floating-model">
+    <div *ngIf="addressBookVar$ | async as workitems" class="floating-model">
       <div>
-        <button class="closes-button" (click)="closeAddressBook()" id="close-button"> &times; </button>
+        <button
+          class="closes-button"
+          (click)="closeAddressBook()"
+          id="close-button"
+        >
+          &times;
+        </button>
       </div>
-      <imgsol-custom-mailbox-address-book [addressBook]="workitems" (itemClickEmitter)="onItemClick($event)">
+      <imgsol-custom-mailbox-address-book
+        [addressBook]="workitems"
+        (itemClickEmitter)="onItemClick($event)"
+      >
       </imgsol-custom-mailbox-address-book>
     </div>
   </div>
-
-
-
-
-
-
 </body>
