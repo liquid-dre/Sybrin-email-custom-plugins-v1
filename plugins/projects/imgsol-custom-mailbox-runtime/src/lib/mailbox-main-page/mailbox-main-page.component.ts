@@ -807,8 +807,8 @@ export class MailboxMainPageComponent implements OnInit {
         console.log('Reply? ', workItem.properties['Sensitivity']);
       }
 
-      workItem.properties['AccountID'] = '487f7f98-84a9-4f0d-8ac5-c5a37c45c05f';
-      // workItem.properties['AccountID'] = '9e97becb-f5a6-4c16-9005-650d3232d70e';
+      // workItem.properties['AccountID'] = '487f7f98-84a9-4f0d-8ac5-c5a37c45c05f';
+      workItem.properties['AccountID'] = '6ba8698c-f40c-41e7-95a8-010c3d53132a';
       workItem.properties['FolderID'] = '2';
       workItem.properties['Folder'] = 'Sent';
       workItem.properties['EmailType'] = '0';
@@ -822,7 +822,8 @@ export class MailboxMainPageComponent implements OnInit {
 
       workItem.properties['Importance'] = 'Normal';
       workItem.properties['Priority'] = 'Normal';
-      workItem.properties['NotificationTemplateID'] = '02de7fdf-68c5-436c-9367-86f2329553f5';
+      // workItem.properties['NotificationTemplateID'] = '02de7fdf-68c5-436c-9367-86f2329553f5';
+      workItem.properties['NotificationTemplateID']='e3c3eca2-ab3f-4a1b-a0a1-c5fb13301027';
 
       console.log("att...", this.vworkItems[0].Pages)
 
@@ -860,7 +861,7 @@ export class MailboxMainPageComponent implements OnInit {
 
       const notification: Notification = {
         DistributionListIDs: [],
-        EmailAccountIDs: ["487f7f98-84a9-4f0d-8ac5-c5a37c45c05f"],
+        EmailAccountIDs: ["6ba8698c-f40c-41e7-95a8-010c3d53132a"],
         SMSAccountIDs: [],
         Attachments: base64Attachments,
         DistributionList: null,
